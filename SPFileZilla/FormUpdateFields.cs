@@ -9,6 +9,7 @@ using System.Windows.Forms;
 using System.Collections;
 using BandR;
 using BandR.CustObjs;
+using SpMigrator.Core;
 
 namespace SPFileZilla2013
 {
@@ -67,7 +68,11 @@ namespace SPFileZilla2013
             var msg = "";
             List<string> lstFieldNames = null;
 
-            SpComHelper.GetSharePointFileFields(spSiteUrl, spUsername, spPassword, spDomain, isSpOnline, form1.curSPLocationObj.listId.Value, filePath, out lstFieldNames, out msg);
+            SpConnectionInfo conn = new SpConnectionInfo(spUsername, spPassword, spDomain);
+            conn.IsSpOnline = isSpOnline;
+            conn.SiteUrl = spSiteUrl;
+
+            SpComHelper.GetSharePointFileFields(conn, form1.curSPLocationObj.listId.Value, filePath, out lstFieldNames, out msg);
 
             e.Result = new List<object>() { msg, lstFieldNames };
         }
@@ -151,8 +156,11 @@ namespace SPFileZilla2013
             // for any folders selected, get all the files in those folders, add to list for processing
             foreach (string curServRelFolderPath in _lstFolderPaths)
             {
-                if (!SpComHelper.GetListAllFilesFolderLevel(
-                    spSiteUrl, spUsername, spPassword, spDomain, isSpOnline,
+                SpConnectionInfo conn = new SpConnectionInfo(spUsername, spPassword, spDomain);
+                conn.IsSpOnline = isSpOnline;
+                conn.SiteUrl = spSiteUrl;
+
+                if (!SpComHelper.GetListAllFilesFolderLevel(conn,
                     form1.curSPLocationObj.listId.Value, curServRelFolderPath, ref lstSubObjects, out msg))
                 {
                     bgWorkerSave.ReportProgress(0, string.Format("Error getting folder sub objects, {0}: {1}", curServRelFolderPath, msg));
@@ -184,7 +192,11 @@ namespace SPFileZilla2013
 
                 if (htFieldVals.Count > 0)
                 {
-                    if (!SpComHelper.UpdateSharePointFileFields(spSiteUrl, spUsername, spPassword, spDomain, isSpOnline, form1.curSPLocationObj.listId.Value, filePath, htFieldVals, out msg))
+                    SpConnectionInfo conn = new SpConnectionInfo(spUsername, spPassword, spDomain);
+                    conn.IsSpOnline = isSpOnline;
+                    conn.SiteUrl = spSiteUrl;
+
+                    if (!SpComHelper.UpdateSharePointFileFields(conn, form1.curSPLocationObj.listId.Value, filePath, htFieldVals, out msg))
                     {
                         bgWorkerSave.ReportProgress(0, string.Format("Error updating file field data, {0}, invalid field name or value: {1}", filePath.Substring(filePath.LastIndexOf('/') + 1), msg));
                         error_found = true;

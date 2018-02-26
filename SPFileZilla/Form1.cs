@@ -14,6 +14,7 @@ using Microsoft.SharePoint.Client;
 using File = System.IO.File;
 using Form = System.Windows.Forms.Form;
 using System.Text.RegularExpressions;
+using SpMigrator.Core;
 
 namespace SPFileZilla2013
 {
@@ -612,9 +613,7 @@ namespace SPFileZilla2013
             {
                 bgWorker.ReportProgress(0, string.Format("cur folder path: " + curServRelFolderPath));
 
-                if (!SpComHelper.GetListAllFilesFolderLevel(
-                    tbQuickSPSiteUrl.Text.Trim(), tbQuickSPUsername.Text.Trim(), tbQuickSPPassword.Text.Trim(), tbQuickSPDomain.Text.Trim(),
-                    cbIsSharePointOnline.Checked, curSPLocationObj.listId.Value, curServRelFolderPath, ref lstSubObjects, out msg))
+                if (!SpComHelper.GetListAllFilesFolderLevel(GetConnection(), curSPLocationObj.listId.Value, curServRelFolderPath, ref lstSubObjects, out msg))
                 {
                     bgWorker.ReportProgress(0, string.Format("Error getting folder sub objects, {0}: {1}", curServRelFolderPath, msg));
                 }
@@ -645,9 +644,7 @@ namespace SPFileZilla2013
                     var curDestFolderPath = string.Join("/", stackPathParts.Reverse().ToArray());
                     //tcout(" -- cur path to check", curDestFolderPath);
 
-                    if (!SpComHelper.CheckFolderExists(
-                        tbQuickSPSiteUrl.Text.Trim(), tbQuickSPUsername.Text.Trim(), tbQuickSPPassword.Text.Trim(), tbQuickSPDomain.Text.Trim(),
-                        cbIsSharePointOnline.Checked, curDestFolderPath, out exists, out msg))
+                    if (!SpComHelper.CheckFolderExists(GetConnection(), curDestFolderPath, out exists, out msg))
                     {
                         // error
                         tcout("ERROR: " + msg);
@@ -684,8 +681,7 @@ namespace SPFileZilla2013
                         {
                             var folderName = stackBackTrack.Pop();
 
-                            if (!SpComHelper.CreateFolderInSharePoint(tbQuickSPSiteUrl.Text.Trim(), tbQuickSPUsername.Text.Trim(), tbQuickSPPassword.Text.Trim(), tbQuickSPDomain.Text.Trim(),
-                                    cbIsSharePointOnline.Checked, folderName, foundFolderPath, out msg))
+                            if (!SpComHelper.CreateFolderInSharePoint(GetConnection(), folderName, foundFolderPath, out msg))
                             {
                                 tcout("ERROR: " + msg);
                                 break;
@@ -703,9 +699,7 @@ namespace SPFileZilla2013
 
                     if (doCopy)
                     {
-                        if (!SpComHelper.CopySPFile(
-                                tbQuickSPSiteUrl.Text.Trim(), tbQuickSPUsername.Text.Trim(), tbQuickSPPassword.Text.Trim(), tbQuickSPDomain.Text.Trim(),
-                                cbIsSharePointOnline.Checked, oldLocPath, newLocPath, cbOverwrite.Checked, out msg))
+                        if (!SpComHelper.CopySPFile(GetConnection(), oldLocPath, newLocPath, cbOverwrite.Checked, out msg))
                         {
                             bgWorker.ReportProgress(0, string.Format("Error copying file, {0}: {1}", oldLocPath, msg));
                         }
@@ -716,9 +710,7 @@ namespace SPFileZilla2013
                     }
                     else if (doMove)
                     {
-                        if (!SpComHelper.MoveSPFile(
-                                tbQuickSPSiteUrl.Text.Trim(), tbQuickSPUsername.Text.Trim(), tbQuickSPPassword.Text.Trim(), tbQuickSPDomain.Text.Trim(),
-                                cbIsSharePointOnline.Checked, oldLocPath, newLocPath, cbOverwrite.Checked, out msg))
+                        if (!SpComHelper.MoveSPFile(GetConnection(), oldLocPath, newLocPath, cbOverwrite.Checked, out msg))
                         {
                             bgWorker.ReportProgress(0, string.Format("Error moving file, {0}: {1}", oldLocPath, msg));
                         }
@@ -766,9 +758,7 @@ namespace SPFileZilla2013
             {
                 bgWorker.ReportProgress(0, string.Format("cur folder path: " + curServRelFolderPath));
 
-                if (!SpComHelper.GetListAllFilesFolderLevel(
-                    tbQuickSPSiteUrl.Text.Trim(), tbQuickSPUsername.Text.Trim(), tbQuickSPPassword.Text.Trim(), tbQuickSPDomain.Text.Trim(),
-                    cbIsSharePointOnline.Checked, curSPLocationObj.listId.Value, curServRelFolderPath, ref lstSubObjects, out msg))
+                if (!SpComHelper.GetListAllFilesFolderLevel(GetConnection(), curSPLocationObj.listId.Value, curServRelFolderPath, ref lstSubObjects, out msg))
                 {
                     bgWorker.ReportProgress(0, string.Format("Error getting folder sub objects, {0}: {1}", curServRelFolderPath, msg));
                 }
@@ -781,9 +771,7 @@ namespace SPFileZilla2013
 
                 if (action.IsEqual("CHECKINMINOR"))
                 {
-                    if (!SpComHelper.CheckInSPFile(
-                            tbQuickSPSiteUrl.Text.Trim(), tbQuickSPUsername.Text.Trim(), tbQuickSPPassword.Text.Trim(), tbQuickSPDomain.Text.Trim(),
-                            cbIsSharePointOnline.Checked, curSPLocationObj.listId.Value, curPath, comment, CheckinType.MinorCheckIn, out msg))
+                    if (!SpComHelper.CheckInSPFile(GetConnection(), curSPLocationObj.listId.Value, curPath, comment, CheckinType.MinorCheckIn, out msg))
                     {
                         bgWorker.ReportProgress(0, string.Format("Error @ MinorCheckIn File, {0}: {1}", curPath, msg));
                     }
@@ -794,8 +782,7 @@ namespace SPFileZilla2013
                 }
                 else if (action.IsEqual("UNDOCHECKOUT"))
                 {
-                    if (!SpComHelper.UndoCheckOutSPFile(tbQuickSPSiteUrl.Text.Trim(), tbQuickSPUsername.Text.Trim(), tbQuickSPPassword.Text.Trim(),
-                            tbQuickSPDomain.Text.Trim(), cbIsSharePointOnline.Checked, curSPLocationObj.listId.Value, curPath, out msg))
+                    if (!SpComHelper.UndoCheckOutSPFile(GetConnection(), curSPLocationObj.listId.Value, curPath, out msg))
                     {
                         bgWorker.ReportProgress(0, string.Format("Error @ UndoCheckOut File, {0}: {1}", curPath, msg));
                     }
@@ -806,8 +793,7 @@ namespace SPFileZilla2013
                 }
                 else if (action.IsEqual("PUBLISHFILE"))
                 {
-                    if (!SpComHelper.PublishSPFile(tbQuickSPSiteUrl.Text.Trim(), tbQuickSPUsername.Text.Trim(), tbQuickSPPassword.Text.Trim(),
-                            tbQuickSPDomain.Text.Trim(), cbIsSharePointOnline.Checked, curSPLocationObj.listId.Value, curPath, comment, out msg))
+                    if (!SpComHelper.PublishSPFile(GetConnection(), curSPLocationObj.listId.Value, curPath, comment, out msg))
                     {
                         bgWorker.ReportProgress(0, string.Format("Error @ Publish File, {0}: {1}", curPath, msg));
                     }
@@ -818,8 +804,7 @@ namespace SPFileZilla2013
                 }
                 else if (action.IsEqual("CHECKINMAJOR"))
                 {
-                    if (!SpComHelper.CheckInSPFile(tbQuickSPSiteUrl.Text.Trim(), tbQuickSPUsername.Text.Trim(), tbQuickSPPassword.Text.Trim(),
-                            tbQuickSPDomain.Text.Trim(), cbIsSharePointOnline.Checked, curSPLocationObj.listId.Value, curPath, comment, CheckinType.MajorCheckIn, out msg))
+                    if (!SpComHelper.CheckInSPFile(GetConnection(), curSPLocationObj.listId.Value, curPath, comment, CheckinType.MajorCheckIn, out msg))
                     {
                         bgWorker.ReportProgress(0, string.Format("Error @ MajorCheckIn File, {0}: {1}", curPath, msg));
                     }
@@ -830,8 +815,7 @@ namespace SPFileZilla2013
                 }
                 else if (action.IsEqual("CHECKINOVERWRITE"))
                 {
-                    if (!SpComHelper.CheckInSPFile(tbQuickSPSiteUrl.Text.Trim(), tbQuickSPUsername.Text.Trim(), tbQuickSPPassword.Text.Trim(),
-                            tbQuickSPDomain.Text.Trim(), cbIsSharePointOnline.Checked, curSPLocationObj.listId.Value, curPath, comment, CheckinType.OverwriteCheckIn, out msg))
+                    if (!SpComHelper.CheckInSPFile(GetConnection(), curSPLocationObj.listId.Value, curPath, comment, CheckinType.OverwriteCheckIn, out msg))
                     {
                         bgWorker.ReportProgress(0, string.Format("Error @ OverwriteCheckIn File, {0}: {1}", curPath, msg));
                     }
@@ -842,8 +826,7 @@ namespace SPFileZilla2013
                 }
                 else if (action.IsEqual("CHECKOUT"))
                 {
-                    if (!SpComHelper.CheckOutSPFile(tbQuickSPSiteUrl.Text.Trim(), tbQuickSPUsername.Text.Trim(), tbQuickSPPassword.Text.Trim(),
-                            tbQuickSPDomain.Text.Trim(), cbIsSharePointOnline.Checked, curSPLocationObj.listId.Value, curPath, out msg))
+                    if (!SpComHelper.CheckOutSPFile(GetConnection(), curSPLocationObj.listId.Value, curPath, out msg))
                     {
                         bgWorker.ReportProgress(0, string.Format("Error @ CheckOut File, {0}: {1}", curPath, msg));
                     }
@@ -1833,8 +1816,7 @@ namespace SPFileZilla2013
             var msg = "";
             byte[] fileData = null;
 
-            if (!SpComHelper.DownloadFileFromSharePoint(tbQuickSPSiteUrl.Text.Trim(), tbQuickSPUsername.Text.Trim(), tbQuickSPPassword.Text.Trim(),
-                    tbQuickSPDomain.Text.Trim(), cbIsSharePointOnline.Checked, spFilePath, out fileData, out msg))
+            if (!SpComHelper.DownloadFileFromSharePoint(GetConnection(), spFilePath, out fileData, out msg))
             {
                 bgWorker.ReportProgress(0, msg);
                 return;
@@ -2048,7 +2030,7 @@ namespace SPFileZilla2013
             if (sNodeType == Enums.TreeNodeTypes.FOLDER.ToString())
             {
                 // rename folder in sharepoint
-                if (!SpComHelper.RenameSharePointFolder(tbQuickSPSiteUrl.Text.Trim(), tbQuickSPUsername.Text.Trim(), tbQuickSPPassword.Text.Trim(), tbQuickSPDomain.Text.Trim(), cbIsSharePointOnline.Checked, curSPLocationObj.listId.Value, sNodePath, newName, out msg))
+                if (!SpComHelper.RenameSharePointFolder(GetConnection(), curSPLocationObj.listId.Value, sNodePath, newName, out msg))
                 {
                     bgWorker.ReportProgress(0, msg);
                 }
@@ -2068,7 +2050,7 @@ namespace SPFileZilla2013
                 if (oldFileExt.IsEqual(newFileExt))
                 {
                     // rename file in sharepoint
-                    if (!SpComHelper.RenameSharePointFile(tbQuickSPSiteUrl.Text.Trim(), tbQuickSPUsername.Text.Trim(), tbQuickSPPassword.Text.Trim(), tbQuickSPDomain.Text.Trim(), cbIsSharePointOnline.Checked, sNodePath, newName, out msg))
+                    if (!SpComHelper.RenameSharePointFile(GetConnection(), sNodePath, newName, out msg))
                     {
                         bgWorker.ReportProgress(0, msg);
                     }
@@ -2084,7 +2066,7 @@ namespace SPFileZilla2013
                     var oldFilePath = sNodePath;
                     var newFilePath = sNodePath.Substring(0, sNodePath.LastIndexOf('/')).CombineWeb(newName);
 
-                    if (!SpComHelper.MoveSPFile(tbQuickSPSiteUrl.Text.Trim(), tbQuickSPUsername.Text.Trim(), tbQuickSPPassword.Text.Trim(), tbQuickSPDomain.Text.Trim(), cbIsSharePointOnline.Checked,
+                    if (!SpComHelper.MoveSPFile(GetConnection(),
                         oldFilePath, newFilePath, false, out msg))
                     {
                         bgWorker.ReportProgress(0, msg);
@@ -2222,7 +2204,7 @@ namespace SPFileZilla2013
                 if (sNodeType == Enums.TreeNodeTypes.FOLDER.ToString())
                 {
                     // delete folders in sharepoint
-                    if (!SpComHelper.DeleteFolderFromSharePoint(tbQuickSPSiteUrl.Text.Trim(), tbQuickSPUsername.Text.Trim(), tbQuickSPPassword.Text.Trim(), tbQuickSPDomain.Text.Trim(), cbIsSharePointOnline.Checked, sNodePath, out msg))
+                    if (!SpComHelper.DeleteFolderFromSharePoint(GetConnection(), sNodePath, out msg))
                     {
                         bgWorker.ReportProgress(0, msg);
                     }
@@ -2236,7 +2218,7 @@ namespace SPFileZilla2013
                 else if (sNodeType == Enums.TreeNodeTypes.FILE.ToString())
                 {
                     // delete files in sharepoint
-                    if (!SpComHelper.DeleteFileFromSharePoint(tbQuickSPSiteUrl.Text.Trim(), tbQuickSPUsername.Text.Trim(), tbQuickSPPassword.Text.Trim(), tbQuickSPDomain.Text.Trim(), cbIsSharePointOnline.Checked, sNodePath, out msg))
+                    if (!SpComHelper.DeleteFileFromSharePoint(GetConnection(), sNodePath, out msg))
                     {
                         bgWorker.ReportProgress(0, msg);
                     }
@@ -2895,12 +2877,7 @@ namespace SPFileZilla2013
             // get files and folders inside this folder
             var lstObjs = new List<SPTree_FolderFileObj>();
 
-            if (!SpComHelper.GetListFoldersFilesFolderLevel(
-                    tbQuickSPSiteUrl.Text.Trim(),
-                    tbQuickSPUsername.Text.Trim(),
-                    tbQuickSPPassword.Text.Trim(),
-                    tbQuickSPDomain.Text.Trim(),
-                    cbIsSharePointOnline.Checked,
+            if (!SpComHelper.GetListFoldersFilesFolderLevel(GetConnection(),
                     curSPLocationObj.listId,
                     spFolderPath,
                     0,
@@ -2940,8 +2917,7 @@ namespace SPFileZilla2013
                 return;
             }
 
-            if (!SpComHelper.DownloadFileFromSharePoint(tbQuickSPSiteUrl.Text.Trim(), tbQuickSPUsername.Text.Trim(), tbQuickSPPassword.Text.Trim(),
-               tbQuickSPDomain.Text.Trim(), cbIsSharePointOnline.Checked, spFilePath, out fileData, out msg))
+            if (!SpComHelper.DownloadFileFromSharePoint(GetConnection(), spFilePath, out fileData, out msg))
             {
                 bgWorker.ReportProgress(0, msg);
                 return;
@@ -2969,7 +2945,7 @@ namespace SPFileZilla2013
 
             var folderName = Path.GetFileName(folderPath);
 
-            if (!SpComHelper.CreateFolderInSharePoint(tbQuickSPSiteUrl.Text.Trim(), tbQuickSPUsername.Text.Trim(), tbQuickSPPassword.Text.Trim(), tbQuickSPDomain.Text.Trim(), cbIsSharePointOnline.Checked, folderName, spFolderPath, out msg))
+            if (!SpComHelper.CreateFolderInSharePoint(GetConnection(), folderName, spFolderPath, out msg))
             {
                 bgWorker.ReportProgress(0, msg);
             }
@@ -3039,8 +3015,7 @@ namespace SPFileZilla2013
                 dtModified = DateTime.Now;
             }
 
-            if (!SpComHelper.UploadFileToSharePoint(tbQuickSPSiteUrl.Text.Trim(), tbQuickSPUsername.Text.Trim(), tbQuickSPPassword.Text.Trim(),
-                    tbQuickSPDomain.Text.Trim(), cbIsSharePointOnline.Checked, filePath, spFolderPath, cbOverwrite.Checked, 
+            if (!SpComHelper.UploadFileToSharePoint(GetConnection(), filePath, spFolderPath, cbOverwrite.Checked, 
                     dtCreated, dtModified,
                     out skipped, out msg))
             {
@@ -3179,14 +3154,7 @@ namespace SPFileZilla2013
 
             List<SPTree_ListObj> lstObjs;
 
-            if (!SpComHelper.GetSiteLists(
-                    tbQuickSPSiteUrl.Text.Trim(),
-                    tbQuickSPUsername.Text.Trim(),
-                    tbQuickSPPassword.Text.Trim(),
-                    tbQuickSPDomain.Text.Trim(),
-                    cbIsSharePointOnline.Checked,
-                    out lstObjs,
-                    out msg))
+            if (!SpComHelper.GetSiteLists(GetConnection(), out lstObjs, out msg))
             {
                 bgWorker.ReportProgress(0, msg);
             }
@@ -3276,12 +3244,7 @@ namespace SPFileZilla2013
             var lstObjs = new List<SPTree_FolderFileObj>();
 
             // get files and folders from root folder of list
-            if (!SpComHelper.GetListFoldersFilesRootLevel(
-                    tbQuickSPSiteUrl.Text.Trim(),
-                    tbQuickSPUsername.Text.Trim(),
-                    tbQuickSPPassword.Text.Trim(),
-                    tbQuickSPDomain.Text.Trim(),
-                    cbIsSharePointOnline.Checked,
+            if (!SpComHelper.GetListFoldersFilesRootLevel(GetConnection(),
                     listId,
                     sortCol,
                     GetRowLimit(),
@@ -3395,12 +3358,7 @@ namespace SPFileZilla2013
             var lstObjs = new List<SPTree_FolderFileObj>();
 
             // get files and folders from list folder (using folder url)
-            if (!SpComHelper.GetListFoldersFilesFolderLevel(
-                    tbQuickSPSiteUrl.Text.Trim(),
-                    tbQuickSPUsername.Text.Trim(),
-                    tbQuickSPPassword.Text.Trim(),
-                    tbQuickSPDomain.Text.Trim(),
-                    cbIsSharePointOnline.Checked,
+            if (!SpComHelper.GetListFoldersFilesFolderLevel(GetConnection(),
                     curSPLocationObj.listId,
                     folderUrl,
                     sortCol,
@@ -3611,5 +3569,13 @@ namespace SPFileZilla2013
             formManagePropBag.Focus();
         }
 
+
+        private SpConnectionInfo GetConnection()
+        {
+            SpConnectionInfo con = new SpConnectionInfo(tbQuickSPUsername.Text.Trim(), tbQuickSPPassword.Text.Trim(), tbQuickSPDomain.Text.Trim());
+            con.SiteUrl = tbQuickSPSiteUrl.Text.Trim();
+            con.IsSpOnline = cbIsSharePointOnline.Checked;
+            return con;
+        }
     }
 }

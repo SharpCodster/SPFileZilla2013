@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using BandR;
+using SpMigrator.Core;
 
 namespace SPFileZilla2013
 {
@@ -86,7 +87,11 @@ namespace SPFileZilla2013
 
             try
             {
-                if (!SpComHelper.GetSitePropBagValue(spSiteUrl, spUsername, spPassword, spDomain, isSpOnline, key, out val, out msg))
+                SpConnectionInfo conn = new SpConnectionInfo(spUsername, spPassword, spDomain);
+                conn.IsSpOnline = isSpOnline;
+                conn.SiteUrl = spSiteUrl;
+
+                if (!SpComHelper.GetSitePropBagValue(conn, key, out val, out msg))
                 {
                     bgWorker.ReportProgress(0, "ERROR: " + msg);
                 }
@@ -154,7 +159,11 @@ namespace SPFileZilla2013
 
             try
             {
-                if (!SpComHelper.SetSitePropBagValue(spSiteUrl, spUsername, spPassword, spDomain, isSpOnline, key, val, out msg))
+                SpConnectionInfo conn = new SpConnectionInfo(spUsername, spPassword, spDomain);
+                conn.IsSpOnline = isSpOnline;
+                conn.SiteUrl = spSiteUrl;
+
+                if (!SpComHelper.SetSitePropBagValue(conn, key, val, out msg))
                 {
                     bgWorker.ReportProgress(0, "ERROR: " + msg);
                 }
@@ -209,7 +218,11 @@ namespace SPFileZilla2013
 
             try
             {
-                if (!SpComHelper.GetSitePropBagValues(spSiteUrl, spUsername, spPassword, spDomain, isSpOnline, out keys, out msg))
+                SpConnectionInfo conn = new SpConnectionInfo(spUsername, spPassword, spDomain);
+                conn.IsSpOnline = isSpOnline;
+                conn.SiteUrl = spSiteUrl;
+
+                if (!SpComHelper.GetSitePropBagValues(conn, out keys, out msg))
                 {
                     bgWorker.ReportProgress(0, "ERROR: " + msg);
                 }

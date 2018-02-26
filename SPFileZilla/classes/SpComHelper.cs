@@ -6,6 +6,7 @@ using Microsoft.SharePoint.Client;
 using System.Net;
 using System.Collections;
 using System.Globalization;
+using SpMigrator.Core;
 
 namespace BandR
 {
@@ -42,35 +43,16 @@ namespace BandR
 
         /// <summary>
         /// </summary>
-        public static bool GetSiteLists(
-            string spSiteUrl,
-            string spSiteUsername,
-            string spSitePwd,
-            string spSiteDomain,
-            bool isSpOnline,
-            out List<CustObjs.SPTree_ListObj> lstObjs,
-            out string msg)
+        public static bool GetSiteLists(SpConnectionInfo spConnection, out List<CustObjs.SPTree_ListObj> lstObjs, out string msg)
         {
             msg = "";
             lstObjs = new List<CustObjs.SPTree_ListObj>();
 
             try
             {
-                using (var ctx = new ClientContext(spSiteUrl))
+                using (var ctx = SpContextHelper.GetContext(spConnection))
                 {
-                    ctx.RequestTimeout = 1000000;
-
-                    if (!isSpOnline)
-                    {
-                        ctx.Credentials = new NetworkCredential(spSiteUsername, spSitePwd, spSiteDomain);
-                        ctx.ExecutingWebRequest += new EventHandler<WebRequestEventArgs>(ctx_ExecutingWebRequest_FixForMixedMode);
-                    }
-                    else
-                    {
-                        ctx.Credentials = new SharePointOnlineCredentials(spSiteUsername, GenUtil.ToSecureString(spSitePwd));
-                    }
-
-                    var lists = ctx.Web.Lists;
+                   var lists = ctx.Web.Lists;
                     ctx.Load(lists, l => l.Include(x => x.Title, x => x.Id, x => x.ContentTypes.Include(y => y.Name, y => y.Id)));
 
                     ctx.ExecuteQuery();
@@ -108,12 +90,7 @@ namespace BandR
 
         /// <summary>
         /// </summary>
-        public static bool GetListFoldersFilesRootLevel(
-            string spSiteUrl, 
-            string spSiteUsername, 
-            string spSitePwd, 
-            string spSiteDomain,
-            bool isSpOnline,
+        public static bool GetListFoldersFilesRootLevel(SpConnectionInfo spConnection,
             Guid? listId, 
             int sortCol,
             int rowLimit,
@@ -131,20 +108,8 @@ namespace BandR
 
             try
             {
-                using (var ctx = new ClientContext(spSiteUrl))
+                using (var ctx = SpContextHelper.GetContext(spConnection))
                 {
-                    ctx.RequestTimeout = 1000000;
-
-                    if (!isSpOnline)
-                    {
-                        ctx.Credentials = new NetworkCredential(spSiteUsername, spSitePwd, spSiteDomain);
-                        ctx.ExecutingWebRequest += new EventHandler<WebRequestEventArgs>(ctx_ExecutingWebRequest_FixForMixedMode);
-                    }
-                    else
-                    {
-                        ctx.Credentials = new SharePointOnlineCredentials(spSiteUsername, GenUtil.ToSecureString(spSitePwd));
-                    }
-
                     var list = ctx.Web.Lists.GetById(listId.Value);
 
                     ctx.Load(list, x => x.Title);
@@ -248,12 +213,7 @@ namespace BandR
 
         /// <summary>
         /// </summary>
-        public static bool GetListFoldersFilesFolderLevel(
-            string spSiteUrl,
-            string spSiteUsername,
-            string spSitePwd,
-            string spSiteDomain,
-            bool isSpOnline,
+        public static bool GetListFoldersFilesFolderLevel(SpConnectionInfo spConnection,
             Guid? listId,
             string folderServerRelPath,
             int sortCol,
@@ -270,20 +230,8 @@ namespace BandR
 
             try
             {
-                using (var ctx = new ClientContext(spSiteUrl))
+                using (var ctx = SpContextHelper.GetContext(spConnection))
                 {
-                    ctx.RequestTimeout = 1000000;
-
-                    if (!isSpOnline)
-                    {
-                        ctx.Credentials = new NetworkCredential(spSiteUsername, spSitePwd, spSiteDomain);
-                        ctx.ExecutingWebRequest += new EventHandler<WebRequestEventArgs>(ctx_ExecutingWebRequest_FixForMixedMode);
-                    }
-                    else
-                    {
-                        ctx.Credentials = new SharePointOnlineCredentials(spSiteUsername, GenUtil.ToSecureString(spSitePwd));
-                    }
-
                     var list = ctx.Web.Lists.GetById(listId.Value);
 
                     //ctx.Load(list, x => x.Title);
@@ -383,12 +331,7 @@ namespace BandR
 
         /// <summary>
         /// </summary>
-        public static bool GetListAllFilesFolderLevel(
-            string spSiteUrl,
-            string spSiteUsername,
-            string spSitePwd,
-            string spSiteDomain,
-            bool isSpOnline,
+        public static bool GetListAllFilesFolderLevel(SpConnectionInfo spConnection,
             Guid? listId,
             string folderServerRelPath,
             ref List<CustObjs.SPTree_FolderFileObj> lstObjs,
@@ -403,20 +346,8 @@ namespace BandR
 
             try
             {
-                using (var ctx = new ClientContext(spSiteUrl))
+                using (var ctx = SpContextHelper.GetContext(spConnection))
                 {
-                    ctx.RequestTimeout = 1000000;
-
-                    if (!isSpOnline)
-                    {
-                        ctx.Credentials = new NetworkCredential(spSiteUsername, spSitePwd, spSiteDomain);
-                        ctx.ExecutingWebRequest += new EventHandler<WebRequestEventArgs>(ctx_ExecutingWebRequest_FixForMixedMode);
-                    }
-                    else
-                    {
-                        ctx.Credentials = new SharePointOnlineCredentials(spSiteUsername, GenUtil.ToSecureString(spSitePwd));
-                    }
-
                     var list = ctx.Web.Lists.GetById(listId.Value);
 
                     ListItemCollectionPosition pos = null;
@@ -480,12 +411,7 @@ namespace BandR
         /// <summary>
         /// NOT USED, old way of getting folder files/folders
         /// </summary>
-        public static bool GetListFoldersFilesFolderLevel_OLD(
-            string spSiteUrl, 
-            string spSiteUsername, 
-            string spSitePwd, 
-            string spSiteDomain,
-            bool isSpOnline,
+        public static bool GetListFoldersFilesFolderLevel_OLD(SpConnectionInfo spConnection,
             string folderUrl, 
             int sortCol,
             int rowLimit,
@@ -497,20 +423,8 @@ namespace BandR
 
             try
             {
-                using (var ctx = new ClientContext(spSiteUrl))
+                using (var ctx = SpContextHelper.GetContext(spConnection))
                 {
-                    ctx.RequestTimeout = 1000000;
-
-                    if (!isSpOnline)
-                    {
-                        ctx.Credentials = new NetworkCredential(spSiteUsername, spSitePwd, spSiteDomain);
-                        ctx.ExecutingWebRequest += new EventHandler<WebRequestEventArgs>(ctx_ExecutingWebRequest_FixForMixedMode);
-                    }
-                    else
-                    {
-                        ctx.Credentials = new SharePointOnlineCredentials(spSiteUsername, GenUtil.ToSecureString(spSitePwd));
-                    }
-
                     var folder = ctx.Web.GetFolderByServerRelativeUrl(folderUrl);
 
                     var folders = folder.Folders;
@@ -569,12 +483,7 @@ namespace BandR
 
         /// <summary>
         /// </summary>
-        public static bool UploadFileToSharePoint(
-            string spSiteUrl, 
-            string spSiteUsername, 
-            string spSitePwd, 
-            string spSiteDomain,
-            bool isSpOnline,
+        public static bool UploadFileToSharePoint(SpConnectionInfo spConnection,
             string filePath, 
             string spFolderUrl, 
             bool overwrite,
@@ -588,20 +497,8 @@ namespace BandR
 
             try
             {
-                using (var ctx = new ClientContext(spSiteUrl))
+                using (var ctx = SpContextHelper.GetContext(spConnection))
                 {
-                    ctx.RequestTimeout = 1000000;
-
-                    if (!isSpOnline)
-                    {
-                        ctx.Credentials = new NetworkCredential(spSiteUsername, spSitePwd, spSiteDomain);
-                        ctx.ExecutingWebRequest += new EventHandler<WebRequestEventArgs>(ctx_ExecutingWebRequest_FixForMixedMode);
-                    }
-                    else
-                    {
-                        ctx.Credentials = new SharePointOnlineCredentials(spSiteUsername, GenUtil.ToSecureString(spSitePwd));
-                    }
-
                     var fileName = filePath.Substring(filePath.LastIndexOf('\\') + 1);
                     var newServerRelPath = GenUtil.CombinePaths(spFolderUrl, GenUtil.CleanFilenameForSP(fileName, ""));
 
@@ -619,7 +516,7 @@ namespace BandR
                     {
                         using (var fs = new System.IO.FileStream(filePath, System.IO.FileMode.Open))
                         {
-                            if (!isSpOnline)
+                            if (!spConnection.IsSpOnline)
                             {
                                 File.SaveBinaryDirect(ctx, newServerRelPath, fs, true);
                             }
@@ -670,12 +567,7 @@ namespace BandR
 
         /// <summary>
         /// </summary>
-        public static bool UploadFileToSharePoint(
-            string spSiteUrl,
-            string spSiteUsername,
-            string spSitePwd,
-            string spSiteDomain,
-            bool isSpOnline,
+        public static bool UploadFileToSharePoint(SpConnectionInfo spConnection,
             string spFileServerRelUrl,
             byte[] fileData,
             out string msg)
@@ -684,23 +576,11 @@ namespace BandR
 
             try
             {
-                using (var ctx = new ClientContext(spSiteUrl))
+                using (var ctx = SpContextHelper.GetContext(spConnection))
                 {
-                    ctx.RequestTimeout = 1000000;
-
-                    if (!isSpOnline)
-                    {
-                        ctx.Credentials = new NetworkCredential(spSiteUsername, spSitePwd, spSiteDomain);
-                        ctx.ExecutingWebRequest += new EventHandler<WebRequestEventArgs>(ctx_ExecutingWebRequest_FixForMixedMode);
-                    }
-                    else
-                    {
-                        ctx.Credentials = new SharePointOnlineCredentials(spSiteUsername, GenUtil.ToSecureString(spSitePwd));
-                    }
-
                     using (var ms = new System.IO.MemoryStream(fileData))
                     {
-                        if (!isSpOnline)
+                        if (!spConnection.IsSpOnline)
                         {
                             File.SaveBinaryDirect(ctx, spFileServerRelUrl, ms, true);
                         }
@@ -734,12 +614,7 @@ namespace BandR
 
         /// <summary>
         /// </summary>
-        public static bool CreateFolderInSharePoint(
-            string spSiteUrl, 
-            string spSiteUsername, 
-            string spSitePwd, 
-            string spSiteDomain,
-            bool isSpOnline,
+        public static bool CreateFolderInSharePoint(SpConnectionInfo spConnection,
             string folderName, 
             string parentFolderUrl, 
             out string msg)
@@ -748,20 +623,8 @@ namespace BandR
 
             try
             {
-                using (var ctx = new ClientContext(spSiteUrl))
+                using (var ctx = SpContextHelper.GetContext(spConnection))
                 {
-                    ctx.RequestTimeout = 1000000;
-
-                    if (!isSpOnline)
-                    {
-                        ctx.Credentials = new NetworkCredential(spSiteUsername, spSitePwd, spSiteDomain);
-                        ctx.ExecutingWebRequest += new EventHandler<WebRequestEventArgs>(ctx_ExecutingWebRequest_FixForMixedMode);
-                    }
-                    else
-                    {
-                        ctx.Credentials = new SharePointOnlineCredentials(spSiteUsername, GenUtil.ToSecureString(spSitePwd));
-                    }
-
                     var folder = ctx.Web.GetFolderByServerRelativeUrl(parentFolderUrl);
                     var newFolder = folder.Folders.Add(folderName);
 
@@ -779,12 +642,7 @@ namespace BandR
 
         /// <summary>
         /// </summary>
-        public static bool DownloadFileFromSharePoint(
-            string spSiteUrl, 
-            string spSiteUsername, 
-            string spSitePwd, 
-            string spSiteDomain,
-            bool isSpOnline,
+        public static bool DownloadFileFromSharePoint(SpConnectionInfo spConnection,
             string fileServerRelUrl, 
             out byte[] fileData, 
             out string msg)
@@ -794,20 +652,8 @@ namespace BandR
 
             try
             {
-                using (var ctx = new ClientContext(spSiteUrl))
+                using (var ctx = SpContextHelper.GetContext(spConnection))
                 {
-                    ctx.RequestTimeout = 1000000;
-
-                    if (!isSpOnline)
-                    {
-                        ctx.Credentials = new NetworkCredential(spSiteUsername, spSitePwd, spSiteDomain);
-                        ctx.ExecutingWebRequest += new EventHandler<WebRequestEventArgs>(ctx_ExecutingWebRequest_FixForMixedMode);
-                    }
-                    else
-                    {
-                        ctx.Credentials = new SharePointOnlineCredentials(spSiteUsername, GenUtil.ToSecureString(spSitePwd));
-                    }
-
                     var fi = File.OpenBinaryDirect(ctx, fileServerRelUrl);
                     fileData = GenUtil.ReadFully(fi.Stream);
                 }
@@ -823,12 +669,7 @@ namespace BandR
 
         /// <summary>
         /// </summary>
-        public static bool DeleteFileFromSharePoint(
-            string spSiteUrl, 
-            string spSiteUsername, 
-            string spSitePwd, 
-            string spSiteDomain,
-            bool isSpOnline,
+        public static bool DeleteFileFromSharePoint(SpConnectionInfo spConnection,
             string fileServerRelUrl, 
             out string msg)
         {
@@ -836,20 +677,8 @@ namespace BandR
 
             try
             {
-                using (var ctx = new ClientContext(spSiteUrl))
+                using (var ctx = SpContextHelper.GetContext(spConnection))
                 {
-                    ctx.RequestTimeout = 1000000;
-
-                    if (!isSpOnline)
-                    {
-                        ctx.Credentials = new NetworkCredential(spSiteUsername, spSitePwd, spSiteDomain);
-                        ctx.ExecutingWebRequest += new EventHandler<WebRequestEventArgs>(ctx_ExecutingWebRequest_FixForMixedMode);
-                    }
-                    else
-                    {
-                        ctx.Credentials = new SharePointOnlineCredentials(spSiteUsername, GenUtil.ToSecureString(spSitePwd));
-                    }
-
                     var file = ctx.Web.GetFileByServerRelativeUrl(fileServerRelUrl);
                     file.DeleteObject();
 
@@ -867,12 +696,7 @@ namespace BandR
 
         /// <summary>
         /// </summary>
-        public static bool DeleteFolderFromSharePoint(
-            string spSiteUrl, 
-            string spSiteUsername, 
-            string spSitePwd, 
-            string spSiteDomain,
-            bool isSpOnline,
+        public static bool DeleteFolderFromSharePoint(SpConnectionInfo spConnection,
             string folderServerRelUrl, 
             out string msg)
         {
@@ -880,20 +704,8 @@ namespace BandR
 
             try
             {
-                using (var ctx = new ClientContext(spSiteUrl))
+                using (var ctx = SpContextHelper.GetContext(spConnection))
                 {
-                    ctx.RequestTimeout = 1000000;
-
-                    if (!isSpOnline)
-                    {
-                        ctx.Credentials = new NetworkCredential(spSiteUsername, spSitePwd, spSiteDomain);
-                        ctx.ExecutingWebRequest += new EventHandler<WebRequestEventArgs>(ctx_ExecutingWebRequest_FixForMixedMode);
-                    }
-                    else
-                    {
-                        ctx.Credentials = new SharePointOnlineCredentials(spSiteUsername, GenUtil.ToSecureString(spSitePwd));
-                    }
-
                     var folder = ctx.Web.GetFolderByServerRelativeUrl(folderServerRelUrl);
                     folder.DeleteObject();
 
@@ -911,12 +723,7 @@ namespace BandR
 
         /// <summary>
         /// </summary>
-        public static bool RenameSharePointFile(
-            string spSiteUrl, 
-            string spSiteUsername, 
-            string spSitePwd, 
-            string spSiteDomain,
-            bool isSpOnline,
+        public static bool RenameSharePointFile(SpConnectionInfo spConnection,
             string fileServerRelUrl, 
             string newFileName, 
             out string msg)
@@ -925,20 +732,8 @@ namespace BandR
 
             try
             {
-                using (var ctx = new ClientContext(spSiteUrl))
+                using (var ctx = SpContextHelper.GetContext(spConnection))
                 {
-                    ctx.RequestTimeout = 1000000;
-
-                    if (!isSpOnline)
-                    {
-                        ctx.Credentials = new NetworkCredential(spSiteUsername, spSitePwd, spSiteDomain);
-                        ctx.ExecutingWebRequest += new EventHandler<WebRequestEventArgs>(ctx_ExecutingWebRequest_FixForMixedMode);
-                    }
-                    else
-                    {
-                        ctx.Credentials = new SharePointOnlineCredentials(spSiteUsername, GenUtil.ToSecureString(spSitePwd));
-                    }
-
                     var file = ctx.Web.GetFileByServerRelativeUrl(fileServerRelUrl);
                     ctx.Load(file,
                         f => f.ListItemAllFields);
@@ -960,12 +755,7 @@ namespace BandR
 
         /// <summary>
         /// </summary>
-        public static bool RenameSharePointFolder(
-            string spSiteUrl, 
-            string spSiteUsername, 
-            string spSitePwd, 
-            string spSiteDomain,
-            bool isSpOnline,
+        public static bool RenameSharePointFolder(SpConnectionInfo spConnection,
             Guid listId, 
             string folderServerRelUrl, 
             string newFolderName, 
@@ -975,19 +765,8 @@ namespace BandR
 
             try
             {
-                using (var ctx = new ClientContext(spSiteUrl))
+                using (var ctx = SpContextHelper.GetContext(spConnection))
                 {
-                    ctx.RequestTimeout = 1000000;
-
-                    if (!isSpOnline)
-                    {
-                        ctx.Credentials = new NetworkCredential(spSiteUsername, spSitePwd, spSiteDomain);
-                        ctx.ExecutingWebRequest += new EventHandler<WebRequestEventArgs>(ctx_ExecutingWebRequest_FixForMixedMode);
-                    }
-                    else
-                    {
-                        ctx.Credentials = new SharePointOnlineCredentials(spSiteUsername, GenUtil.ToSecureString(spSitePwd));
-                    }
 
                     var oldFolderParentUrl = folderServerRelUrl.Substring(0, folderServerRelUrl.LastIndexOf('/'));
                     var oldFolderName = folderServerRelUrl.Substring(folderServerRelUrl.LastIndexOf('/') + 1);
@@ -1042,12 +821,7 @@ namespace BandR
 
         /// <summary>
         /// </summary>
-        public static bool UpdateSharePointFileFields(
-            string spSiteUrl,
-            string spSiteUsername,
-            string spSitePwd,
-            string spSiteDomain,
-            bool isSpOnline,
+        public static bool UpdateSharePointFileFields(SpConnectionInfo spConnection,
             Guid listId,
             string fileServerRelUrl,
             Hashtable ht,
@@ -1057,20 +831,8 @@ namespace BandR
 
             try
             {
-                using (var ctx = new ClientContext(spSiteUrl))
+                using (var ctx = SpContextHelper.GetContext(spConnection))
                 {
-                    ctx.RequestTimeout = 1000000;
-
-                    if (!isSpOnline)
-                    {
-                        ctx.Credentials = new NetworkCredential(spSiteUsername, spSitePwd, spSiteDomain);
-                        ctx.ExecutingWebRequest += new EventHandler<WebRequestEventArgs>(ctx_ExecutingWebRequest_FixForMixedMode);
-                    }
-                    else
-                    {
-                        ctx.Credentials = new SharePointOnlineCredentials(spSiteUsername, GenUtil.ToSecureString(spSitePwd));
-                    }
-
                     var file = ctx.Web.GetFileByServerRelativeUrl(fileServerRelUrl);
 
                     ctx.Load(file, f => f.Name, f => f.ListItemAllFields, f => f.ServerRelativeUrl);
@@ -1096,12 +858,7 @@ namespace BandR
 
         /// <summary>
         /// </summary>
-        public static bool GetSharePointFileFields(
-            string spSiteUrl,
-            string spSiteUsername,
-            string spSitePwd,
-            string spSiteDomain,
-            bool isSpOnline,
+        public static bool GetSharePointFileFields(SpConnectionInfo spConnection,
             Guid listId,
             string fileServerRelUrl,
             out List<string> lstFieldNames,
@@ -1112,20 +869,8 @@ namespace BandR
 
             try
             {
-                using (var ctx = new ClientContext(spSiteUrl))
+                using (var ctx = SpContextHelper.GetContext(spConnection))
                 {
-                    ctx.RequestTimeout = 1000000;
-
-                    if (!isSpOnline)
-                    {
-                        ctx.Credentials = new NetworkCredential(spSiteUsername, spSitePwd, spSiteDomain);
-                        ctx.ExecutingWebRequest += new EventHandler<WebRequestEventArgs>(ctx_ExecutingWebRequest_FixForMixedMode);
-                    }
-                    else
-                    {
-                        ctx.Credentials = new SharePointOnlineCredentials(spSiteUsername, GenUtil.ToSecureString(spSitePwd));
-                    }
-
                     var file = ctx.Web.GetFileByServerRelativeUrl(fileServerRelUrl);
 
                     ctx.Load(file, f => f.Name, f => f.ListItemAllFields, f => f.ServerRelativeUrl);
@@ -1148,12 +893,7 @@ namespace BandR
 
         /// <summary>
         /// </summary>
-        public static bool MoveSPFile(
-            string spSiteUrl,
-            string spSiteUsername,
-            string spSitePwd,
-            string spSiteDomain,
-            bool isSpOnline,
+        public static bool MoveSPFile(SpConnectionInfo spConnection,
             string fileServerRelUrl,
             string newFileServerRelUrl,
             bool overwrite,
@@ -1163,20 +903,8 @@ namespace BandR
 
             try
             {
-                using (var ctx = new ClientContext(spSiteUrl))
+                using (var ctx = SpContextHelper.GetContext(spConnection))
                 {
-                    ctx.RequestTimeout = 1000000;
-
-                    if (!isSpOnline)
-                    {
-                        ctx.Credentials = new NetworkCredential(spSiteUsername, spSitePwd, spSiteDomain);
-                        ctx.ExecutingWebRequest += new EventHandler<WebRequestEventArgs>(ctx_ExecutingWebRequest_FixForMixedMode);
-                    }
-                    else
-                    {
-                        ctx.Credentials = new SharePointOnlineCredentials(spSiteUsername, GenUtil.ToSecureString(spSitePwd));
-                    }
-
                     File file = null;
 
                     if (!overwrite)
@@ -1214,12 +942,7 @@ namespace BandR
 
         /// <summary>
         /// </summary>
-        public static bool CopySPFile(
-            string spSiteUrl,
-            string spSiteUsername,
-            string spSitePwd,
-            string spSiteDomain,
-            bool isSpOnline,
+        public static bool CopySPFile(SpConnectionInfo spConnection,
             string fileServerRelUrl,
             string newFileServerRelUrl,
             bool overwrite,
@@ -1229,20 +952,8 @@ namespace BandR
 
             try
             {
-                using (var ctx = new ClientContext(spSiteUrl))
+                using (var ctx = SpContextHelper.GetContext(spConnection))
                 {
-                    ctx.RequestTimeout = 1000000;
-
-                    if (!isSpOnline)
-                    {
-                        ctx.Credentials = new NetworkCredential(spSiteUsername, spSitePwd, spSiteDomain);
-                        ctx.ExecutingWebRequest += new EventHandler<WebRequestEventArgs>(ctx_ExecutingWebRequest_FixForMixedMode);
-                    }
-                    else
-                    {
-                        ctx.Credentials = new SharePointOnlineCredentials(spSiteUsername, GenUtil.ToSecureString(spSitePwd));
-                    }
-
                     File file = null;
 
                     if (!overwrite)
@@ -1279,12 +990,7 @@ namespace BandR
 
         /// <summary>
         /// </summary>
-        public static bool CheckFolderExists(
-            string spSiteUrl,
-            string spSiteUsername,
-            string spSitePwd,
-            string spSiteDomain,
-            bool isSpOnline,
+        public static bool CheckFolderExists(SpConnectionInfo spConnection,
             string folderPath,
             out bool exists,
             out string msg)
@@ -1293,20 +999,8 @@ namespace BandR
 
             try
             {
-                using (var ctx = new ClientContext(spSiteUrl))
+                using (var ctx = SpContextHelper.GetContext(spConnection))
                 {
-                    ctx.RequestTimeout = 1000000;
-
-                    if (!isSpOnline)
-                    {
-                        ctx.Credentials = new NetworkCredential(spSiteUsername, spSitePwd, spSiteDomain);
-                        ctx.ExecutingWebRequest += new EventHandler<WebRequestEventArgs>(ctx_ExecutingWebRequest_FixForMixedMode);
-                    }
-                    else
-                    {
-                        ctx.Credentials = new SharePointOnlineCredentials(spSiteUsername, GenUtil.ToSecureString(spSitePwd));
-                    }
-
                     Folder folder = ctx.Web.GetFolderByServerRelativeUrl(folderPath);
                     ctx.Load(folder, x => x.Name, x => x.ServerRelativeUrl);
                     ctx.ExecuteQuery();
@@ -1332,12 +1026,7 @@ namespace BandR
 
         /// <summary>
         /// </summary>
-        public static bool PublishSPFile(
-            string spSiteUrl,
-            string spSiteUsername,
-            string spSitePwd,
-            string spSiteDomain,
-            bool isSpOnline,
+        public static bool PublishSPFile(SpConnectionInfo spConnection,
             Guid listId,
             string fileServerRelUrl,
             string comment,
@@ -1347,20 +1036,8 @@ namespace BandR
 
             try
             {
-                using (var ctx = new ClientContext(spSiteUrl))
+                using (var ctx = SpContextHelper.GetContext(spConnection))
                 {
-                    ctx.RequestTimeout = 1000000;
-
-                    if (!isSpOnline)
-                    {
-                        ctx.Credentials = new NetworkCredential(spSiteUsername, spSitePwd, spSiteDomain);
-                        ctx.ExecutingWebRequest += new EventHandler<WebRequestEventArgs>(ctx_ExecutingWebRequest_FixForMixedMode);
-                    }
-                    else
-                    {
-                        ctx.Credentials = new SharePointOnlineCredentials(spSiteUsername, GenUtil.ToSecureString(spSitePwd));
-                    }
-
                     var file = ctx.Web.GetFileByServerRelativeUrl(fileServerRelUrl);
 
                     ctx.Load(file, f => f.Name, f => f.ListItemAllFields, f => f.ServerRelativeUrl);
@@ -1381,12 +1058,7 @@ namespace BandR
 
         /// <summary>
         /// </summary>
-        public static bool CheckInSPFile(
-            string spSiteUrl,
-            string spSiteUsername,
-            string spSitePwd,
-            string spSiteDomain,
-            bool isSpOnline,
+        public static bool CheckInSPFile(SpConnectionInfo spConnection,
             Guid listId,
             string fileServerRelUrl,
             string comment,
@@ -1397,20 +1069,8 @@ namespace BandR
 
             try
             {
-                using (var ctx = new ClientContext(spSiteUrl))
+                using (var ctx = SpContextHelper.GetContext(spConnection))
                 {
-                    ctx.RequestTimeout = 1000000;
-
-                    if (!isSpOnline)
-                    {
-                        ctx.Credentials = new NetworkCredential(spSiteUsername, spSitePwd, spSiteDomain);
-                        ctx.ExecutingWebRequest += new EventHandler<WebRequestEventArgs>(ctx_ExecutingWebRequest_FixForMixedMode);
-                    }
-                    else
-                    {
-                        ctx.Credentials = new SharePointOnlineCredentials(spSiteUsername, GenUtil.ToSecureString(spSitePwd));
-                    }
-
                     var file = ctx.Web.GetFileByServerRelativeUrl(fileServerRelUrl);
 
                     ctx.Load(file, f => f.Name, f => f.ListItemAllFields, f => f.ServerRelativeUrl);
@@ -1431,12 +1091,7 @@ namespace BandR
 
         /// <summary>
         /// </summary>
-        public static bool CheckOutSPFile(
-            string spSiteUrl,
-            string spSiteUsername,
-            string spSitePwd,
-            string spSiteDomain,
-            bool isSpOnline,
+        public static bool CheckOutSPFile(SpConnectionInfo spConnection,
             Guid listId,
             string fileServerRelUrl,
             out string msg)
@@ -1445,20 +1100,8 @@ namespace BandR
 
             try
             {
-                using (var ctx = new ClientContext(spSiteUrl))
+                using (var ctx = SpContextHelper.GetContext(spConnection))
                 {
-                    ctx.RequestTimeout = 1000000;
-
-                    if (!isSpOnline)
-                    {
-                        ctx.Credentials = new NetworkCredential(spSiteUsername, spSitePwd, spSiteDomain);
-                        ctx.ExecutingWebRequest += new EventHandler<WebRequestEventArgs>(ctx_ExecutingWebRequest_FixForMixedMode);
-                    }
-                    else
-                    {
-                        ctx.Credentials = new SharePointOnlineCredentials(spSiteUsername, GenUtil.ToSecureString(spSitePwd));
-                    }
-
                     var file = ctx.Web.GetFileByServerRelativeUrl(fileServerRelUrl);
 
                     ctx.Load(file, f => f.Name, f => f.ListItemAllFields, f => f.ServerRelativeUrl);
@@ -1479,12 +1122,7 @@ namespace BandR
 
         /// <summary>
         /// </summary>
-        public static bool UndoCheckOutSPFile(
-            string spSiteUrl,
-            string spSiteUsername,
-            string spSitePwd,
-            string spSiteDomain,
-            bool isSpOnline,
+        public static bool UndoCheckOutSPFile(SpConnectionInfo spConnection,
             Guid listId,
             string fileServerRelUrl,
             out string msg)
@@ -1493,20 +1131,8 @@ namespace BandR
 
             try
             {
-                using (var ctx = new ClientContext(spSiteUrl))
+                using (var ctx = SpContextHelper.GetContext(spConnection))
                 {
-                    ctx.RequestTimeout = 1000000;
-
-                    if (!isSpOnline)
-                    {
-                        ctx.Credentials = new NetworkCredential(spSiteUsername, spSitePwd, spSiteDomain);
-                        ctx.ExecutingWebRequest += new EventHandler<WebRequestEventArgs>(ctx_ExecutingWebRequest_FixForMixedMode);
-                    }
-                    else
-                    {
-                        ctx.Credentials = new SharePointOnlineCredentials(spSiteUsername, GenUtil.ToSecureString(spSitePwd));
-                    }
-
                     var file = ctx.Web.GetFileByServerRelativeUrl(fileServerRelUrl);
 
                     ctx.Load(file, f => f.Name, f => f.ListItemAllFields, f => f.ServerRelativeUrl);
@@ -1527,12 +1153,7 @@ namespace BandR
 
         /// <summary>
         /// </summary>
-        public static bool GetSitePropBagValues(
-            string spSiteUrl,
-            string spSiteUsername,
-            string spSitePwd,
-            string spSiteDomain,
-            bool isSpOnline,
+        public static bool GetSitePropBagValues(SpConnectionInfo spConnection,
             out List<string> keys,
             out string msg)
         {
@@ -1541,20 +1162,8 @@ namespace BandR
 
             try
             {
-                using (var ctx = new ClientContext(spSiteUrl))
+                using (var ctx = SpContextHelper.GetContext(spConnection))
                 {
-                    ctx.RequestTimeout = 1000000;
-
-                    if (!isSpOnline)
-                    {
-                        ctx.Credentials = new NetworkCredential(spSiteUsername, spSitePwd, spSiteDomain);
-                        ctx.ExecutingWebRequest += new EventHandler<WebRequestEventArgs>(ctx_ExecutingWebRequest_FixForMixedMode);
-                    }
-                    else
-                    {
-                        ctx.Credentials = new SharePointOnlineCredentials(spSiteUsername, GenUtil.ToSecureString(spSitePwd));
-                    }
-
                     var web = ctx.Web;
                     var allProps = web.AllProperties;
                     ctx.Load(allProps);
@@ -1577,12 +1186,7 @@ namespace BandR
 
         /// <summary>
         /// </summary>
-        public static bool GetSitePropBagValue(
-            string spSiteUrl,
-            string spSiteUsername,
-            string spSitePwd,
-            string spSiteDomain,
-            bool isSpOnline,
+        public static bool GetSitePropBagValue(SpConnectionInfo spConnection,
             string key,
             out string value,
             out string msg)
@@ -1592,20 +1196,8 @@ namespace BandR
 
             try
             {
-                using (var ctx = new ClientContext(spSiteUrl))
+                using (var ctx = SpContextHelper.GetContext(spConnection))
                 {
-                    ctx.RequestTimeout = 1000000;
-
-                    if (!isSpOnline)
-                    {
-                        ctx.Credentials = new NetworkCredential(spSiteUsername, spSitePwd, spSiteDomain);
-                        ctx.ExecutingWebRequest += new EventHandler<WebRequestEventArgs>(ctx_ExecutingWebRequest_FixForMixedMode);
-                    }
-                    else
-                    {
-                        ctx.Credentials = new SharePointOnlineCredentials(spSiteUsername, GenUtil.ToSecureString(spSitePwd));
-                    }
-
                     var web = ctx.Web;
                     var allProps = web.AllProperties;
                     ctx.Load(allProps);
@@ -1628,12 +1220,7 @@ namespace BandR
 
         /// <summary>
         /// </summary>
-        public static bool SetSitePropBagValue(
-            string spSiteUrl,
-            string spSiteUsername,
-            string spSitePwd,
-            string spSiteDomain,
-            bool isSpOnline,
+        public static bool SetSitePropBagValue(SpConnectionInfo spConnection,
             string key,
             string value,
             out string msg)
@@ -1642,20 +1229,8 @@ namespace BandR
 
             try
             {
-                using (var ctx = new ClientContext(spSiteUrl))
+                using (var ctx = SpContextHelper.GetContext(spConnection))
                 {
-                    ctx.RequestTimeout = 1000000;
-
-                    if (!isSpOnline)
-                    {
-                        ctx.Credentials = new NetworkCredential(spSiteUsername, spSitePwd, spSiteDomain);
-                        ctx.ExecutingWebRequest += new EventHandler<WebRequestEventArgs>(ctx_ExecutingWebRequest_FixForMixedMode);
-                    }
-                    else
-                    {
-                        ctx.Credentials = new SharePointOnlineCredentials(spSiteUsername, GenUtil.ToSecureString(spSitePwd));
-                    }
-
                     var web = ctx.Web;
                     web.AllProperties[key] = value;
                     web.Update();

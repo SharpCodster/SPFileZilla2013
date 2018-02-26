@@ -1,4 +1,5 @@
 ﻿using BandR;
+using SpMigrator.Core;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -125,7 +126,12 @@ namespace SPFileZilla2013
             {
                 if (isSP)
                 {
-                    if (SpComHelper.UploadFileToSharePoint(spSiteUrl, spUsername, spPassword, spDomain, isSpOnline, _filePath, buffer, out msg))
+
+                    SpConnectionInfo conn = new SpConnectionInfo(spUsername, spPassword, spDomain);
+                    conn.IsSpOnline = isSpOnline;
+                    conn.SiteUrl = spSiteUrl;
+
+                    if (SpComHelper.UploadFileToSharePoint(conn, _filePath, buffer, out msg))
                     {
                         msg = "File Saved!";
                     }
