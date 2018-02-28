@@ -68,7 +68,7 @@ namespace SPFileZilla2013
             var msg = "";
             List<string> lstFieldNames = null;
 
-            SpConnectionInfo conn = new SpConnectionInfo(spUsername, spPassword, spDomain);
+            SpConnectionManager conn = new SpConnectionManager(spUsername, spPassword, spDomain);
             conn.IsSpOnline = isSpOnline;
             conn.SiteUrl = spSiteUrl;
 
@@ -156,7 +156,7 @@ namespace SPFileZilla2013
             // for any folders selected, get all the files in those folders, add to list for processing
             foreach (string curServRelFolderPath in _lstFolderPaths)
             {
-                SpConnectionInfo conn = new SpConnectionInfo(spUsername, spPassword, spDomain);
+                SpConnectionManager conn = new SpConnectionManager(spUsername, spPassword, spDomain);
                 conn.IsSpOnline = isSpOnline;
                 conn.SiteUrl = spSiteUrl;
 
@@ -192,7 +192,7 @@ namespace SPFileZilla2013
 
                 if (htFieldVals.Count > 0)
                 {
-                    SpConnectionInfo conn = new SpConnectionInfo(spUsername, spPassword, spDomain);
+                    SpConnectionManager conn = new SpConnectionManager(spUsername, spPassword, spDomain);
                     conn.IsSpOnline = isSpOnline;
                     conn.SiteUrl = spSiteUrl;
 

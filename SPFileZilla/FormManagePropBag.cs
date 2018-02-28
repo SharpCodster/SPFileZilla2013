@@ -15,7 +15,7 @@ namespace SPFileZilla2013
     {
 
         private BackgroundWorker bgWorker;
-        private BackgroundWorker bgw2;
+        //private BackgroundWorker bgw2;
 
         public Form1 form1 { get; set; }
 
@@ -87,7 +87,7 @@ namespace SPFileZilla2013
 
             try
             {
-                SpConnectionInfo conn = new SpConnectionInfo(spUsername, spPassword, spDomain);
+                SpConnectionManager conn = new SpConnectionManager(spUsername, spPassword, spDomain);
                 conn.IsSpOnline = isSpOnline;
                 conn.SiteUrl = spSiteUrl;
 
@@ -159,7 +159,7 @@ namespace SPFileZilla2013
 
             try
             {
-                SpConnectionInfo conn = new SpConnectionInfo(spUsername, spPassword, spDomain);
+                SpConnectionManager conn = new SpConnectionManager(spUsername, spPassword, spDomain);
                 conn.IsSpOnline = isSpOnline;
                 conn.SiteUrl = spSiteUrl;
 
@@ -218,7 +218,7 @@ namespace SPFileZilla2013
 
             try
             {
-                SpConnectionInfo conn = new SpConnectionInfo(spUsername, spPassword, spDomain);
+                SpConnectionManager conn = new SpConnectionManager(spUsername, spPassword, spDomain);
                 conn.IsSpOnline = isSpOnline;
                 conn.SiteUrl = spSiteUrl;
 

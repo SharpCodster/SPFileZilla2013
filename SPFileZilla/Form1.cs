@@ -15,6 +15,8 @@ using File = System.IO.File;
 using Form = System.Windows.Forms.Form;
 using System.Text.RegularExpressions;
 using SpMigrator.Core;
+using SpMigrator.Core.SpFileAndFolders;
+using SpMigrator.Core.Interfaces;
 
 namespace SPFileZilla2013
 {
@@ -1813,14 +1815,19 @@ namespace SPFileZilla2013
         {
             var lstArgs = e.Argument as List<object>;
             var spFilePath = (string)lstArgs[0];
-            var msg = "";
-            byte[] fileData = null;
+            
 
-            if (!SpComHelper.DownloadFileFromSharePoint(GetConnection(), spFilePath, out fileData, out msg))
+            SpDownloader downloader = new SpDownloader(GetConnection());
+            ISpDownloadResult res = downloader.DownloadFileFromSharePoint(spFilePath);
+
+
+            if (!res.Success)
             {
-                bgWorker.ReportProgress(0, msg);
+                bgWorker.ReportProgress(0, res.Exception.Message);
                 return;
             }
+
+            byte[] fileData = res.ByteData;
 
             var str = "";
             if (System.Configuration.ConfigurationManager.AppSettings["editorTextEncodingIsASCII"] == "1")
@@ -2906,9 +2913,6 @@ namespace SPFileZilla2013
         /// </summary>
         public void AddFileToFS(string spFilePath, string fsFolderPath, ref bool refreshNeeded)
         {
-            var msg = "";
-            byte[] fileData = null;
-
             var fileName = spFilePath.Substring(spFilePath.LastIndexOf('/') + 1);
 
             if (!cbOverwrite.Checked && System.IO.File.Exists(fsFolderPath.CombineFS(fileName)))
@@ -2917,11 +2921,16 @@ namespace SPFileZilla2013
                 return;
             }
 
-            if (!SpComHelper.DownloadFileFromSharePoint(GetConnection(), spFilePath, out fileData, out msg))
+            SpDownloader downloader = new SpDownloader(GetConnection());
+            ISpDownloadResult res = downloader.DownloadFileFromSharePoint(spFilePath);
+
+            if (!res.Success)
             {
-                bgWorker.ReportProgress(0, msg);
+                bgWorker.ReportProgress(0, res.Exception.Message);
                 return;
             }
+
+            byte[] fileData = res.ByteData;
 
             try
             {
@@ -2991,9 +3000,6 @@ namespace SPFileZilla2013
         /// </summary>
         public void AddFileToSP(string filePath, string spFolderPath, ref bool refreshNeeded)
         {
-            var msg = "";
-            bool skipped;
-
             DateTime? dtCreated = null;
             DateTime? dtModified = null;
             var fi = new System.IO.FileInfo(filePath);
@@ -3015,23 +3021,24 @@ namespace SPFileZilla2013
                 dtModified = DateTime.Now;
             }
 
-            if (!SpComHelper.UploadFileToSharePoint(GetConnection(), filePath, spFolderPath, cbOverwrite.Checked, 
-                    dtCreated, dtModified,
-                    out skipped, out msg))
+            SpUploader uploader = new SpUploader(GetConnection());
+            ISpUploadResult res = uploader.UploadFileToSharePoint(filePath, spFolderPath, cbOverwrite.Checked, dtCreated, dtModified);
+
+
+            if (!res.Success)
             {
-                bgWorker.ReportProgress(0, msg);
-            }
-            else
-            {
-                if (skipped)
+                if (res.AlredyExists)
                 {
                     bgWorker.ReportProgress(0, "File already exists, skipped: " + filePath);
                 }
                 else
                 {
-                    bgWorker.ReportProgress(0, "File Copied Successfully: " + filePath);
+                    bgWorker.ReportProgress(0, res.Exception.Message);
                 }
-
+            }
+            else
+            {
+                bgWorker.ReportProgress(0, "File Copied Successfully: " + filePath);
                 refreshNeeded = true;
             }
         }
@@ -3570,9 +3577,9 @@ namespace SPFileZilla2013
         }
 
 
-        private SpConnectionInfo GetConnection()
+        private SpConnectionManager GetConnection()
         {
-            SpConnectionInfo con = new SpConnectionInfo(tbQuickSPUsername.Text.Trim(), tbQuickSPPassword.Text.Trim(), tbQuickSPDomain.Text.Trim());
+            SpConnectionManager con = new SpConnectionManager(tbQuickSPUsername.Text, tbQuickSPPassword.Text, tbQuickSPDomain.Text);
             con.SiteUrl = tbQuickSPSiteUrl.Text.Trim();
             con.IsSpOnline = cbIsSharePointOnline.Checked;
             return con;

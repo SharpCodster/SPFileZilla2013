@@ -43,9 +43,16 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="SpConnectionInfo.cs" />
+    <Compile Include="Interfaces\ISpDownloadResult.cs" />
+    <Compile Include="Interfaces\ISpUploadResult.cs" />
+    <Compile Include="SpConnectionManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SpContextHelper.cs" />
+    <Compile Include="SpFileAndFolders\DownloadReult.cs" />
+    <Compile Include="SpFileAndFolders\SpDownloader.cs" />
+    <Compile Include="SpFileAndFolders\SpUploader.cs" />
+    <Compile Include="SpFileAndFolders\UploadResult.cs" />
+    <Compile Include="Utilities\PathHelper.cs" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

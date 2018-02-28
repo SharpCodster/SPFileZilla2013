@@ -43,14 +43,14 @@ namespace BandR
 
         /// <summary>
         /// </summary>
-        public static bool GetSiteLists(SpConnectionInfo spConnection, out List<CustObjs.SPTree_ListObj> lstObjs, out string msg)
+        public static bool GetSiteLists(SpConnectionManager spConnection, out List<CustObjs.SPTree_ListObj> lstObjs, out string msg)
         {
             msg = "";
             lstObjs = new List<CustObjs.SPTree_ListObj>();
 
             try
             {
-                using (var ctx = SpContextHelper.GetContext(spConnection))
+                using (var ctx = spConnection.GetContext())
                 {
                    var lists = ctx.Web.Lists;
                     ctx.Load(lists, l => l.Include(x => x.Title, x => x.Id, x => x.ContentTypes.Include(y => y.Name, y => y.Id)));
@@ -90,7 +90,7 @@ namespace BandR
 
         /// <summary>
         /// </summary>
-        public static bool GetListFoldersFilesRootLevel(SpConnectionInfo spConnection,
+        public static bool GetListFoldersFilesRootLevel(SpConnectionManager spConnection,
             Guid? listId, 
             int sortCol,
             int rowLimit,
@@ -108,7 +108,7 @@ namespace BandR
 
             try
             {
-                using (var ctx = SpContextHelper.GetContext(spConnection))
+                using (var ctx = spConnection.GetContext())
                 {
                     var list = ctx.Web.Lists.GetById(listId.Value);
 
@@ -213,7 +213,7 @@ namespace BandR
 
         /// <summary>
         /// </summary>
-        public static bool GetListFoldersFilesFolderLevel(SpConnectionInfo spConnection,
+        public static bool GetListFoldersFilesFolderLevel(SpConnectionManager spConnection,
             Guid? listId,
             string folderServerRelPath,
             int sortCol,
@@ -230,7 +230,7 @@ namespace BandR
 
             try
             {
-                using (var ctx = SpContextHelper.GetContext(spConnection))
+                using (var ctx = spConnection.GetContext())
                 {
                     var list = ctx.Web.Lists.GetById(listId.Value);
 
@@ -331,7 +331,7 @@ namespace BandR
 
         /// <summary>
         /// </summary>
-        public static bool GetListAllFilesFolderLevel(SpConnectionInfo spConnection,
+        public static bool GetListAllFilesFolderLevel(SpConnectionManager spConnection,
             Guid? listId,
             string folderServerRelPath,
             ref List<CustObjs.SPTree_FolderFileObj> lstObjs,
@@ -346,7 +346,7 @@ namespace BandR
 
             try
             {
-                using (var ctx = SpContextHelper.GetContext(spConnection))
+                using (var ctx = spConnection.GetContext())
                 {
                     var list = ctx.Web.Lists.GetById(listId.Value);
 
@@ -411,7 +411,7 @@ namespace BandR
         /// <summary>
         /// NOT USED, old way of getting folder files/folders
         /// </summary>
-        public static bool GetListFoldersFilesFolderLevel_OLD(SpConnectionInfo spConnection,
+        public static bool GetListFoldersFilesFolderLevel_OLD(SpConnectionManager spConnection,
             string folderUrl, 
             int sortCol,
             int rowLimit,
@@ -423,7 +423,7 @@ namespace BandR
 
             try
             {
-                using (var ctx = SpContextHelper.GetContext(spConnection))
+                using (var ctx = spConnection.GetContext())
                 {
                     var folder = ctx.Web.GetFolderByServerRelativeUrl(folderUrl);
 
@@ -483,138 +483,15 @@ namespace BandR
 
         /// <summary>
         /// </summary>
-        public static bool UploadFileToSharePoint(SpConnectionInfo spConnection,
-            string filePath, 
-            string spFolderUrl, 
-            bool overwrite,
-            DateTime? dtCreated,
-            DateTime? dtModified,
-            out bool skipped,
-            out string msg)
-        {
-            msg = "";
-            skipped = false;
-
-            try
-            {
-                using (var ctx = SpContextHelper.GetContext(spConnection))
-                {
-                    var fileName = filePath.Substring(filePath.LastIndexOf('\\') + 1);
-                    var newServerRelPath = GenUtil.CombinePaths(spFolderUrl, GenUtil.CleanFilenameForSP(fileName, ""));
-
-                    // check if file exists before trying to upload (optimized, so the file is not opened and stream not sent to SP if already exists)
-                    if (!overwrite)
-                    {
-                        var file = ctx.Web.GetFileByServerRelativeUrl(newServerRelPath);
-                        ctx.Load(file, f => f.Exists);
-                        ctx.ExecuteQuery();
-
-                        skipped = file.Exists;
-                    }
-
-                    if (!skipped)
-                    {
-                        using (var fs = new System.IO.FileStream(filePath, System.IO.FileMode.Open))
-                        {
-                            if (!spConnection.IsSpOnline)
-                            {
-                                File.SaveBinaryDirect(ctx, newServerRelPath, fs, true);
-                            }
-                            else
-                            {
-                                var folder = ctx.Web.GetFolderByServerRelativeUrl(spFolderUrl);
-
-                                var fci = new FileCreationInformation();
-                                fci.ContentStream = fs;
-                                fci.Url = GenUtil.CleanFilenameForSP(fileName, "");
-                                fci.Overwrite = true;
-
-                                folder.Files.Add(fci);
-                                ctx.ExecuteQuery();
-                            }
-                        }
-
-                        if (dtCreated.HasValue || dtModified.HasValue)
-                        {
-                            // update spfile dates
-                            try
-                            {
-                                var file = ctx.Web.GetFileByServerRelativeUrl(newServerRelPath);
-                                var item = file.ListItemAllFields;
-                                if (dtCreated.HasValue)
-                                    item["Created"] = dtCreated.Value.ToString("MM/dd/yyyy HH:mm:ss");
-                                if (dtModified.HasValue)
-                                    item["Modified"] = dtModified.Value.ToString("MM/dd/yyyy HH:mm:ss");
-                                item.Update();
-                                ctx.ExecuteQuery();
-                            }
-                            catch (Exception ex)
-                            {
-                                throw new Exception("File uploaded but error setting created/modified dates: " + ex.Message);
-                            }
-                        }
-                    }
-                }
-                
-            }
-            catch (Exception ex)
-            {
-                msg = SHOW_FULL_ERRORS ? ex.ToString() : ex.Message;
-            }
-
-            return msg == "";
-        }
+        
 
         /// <summary>
         /// </summary>
-        public static bool UploadFileToSharePoint(SpConnectionInfo spConnection,
-            string spFileServerRelUrl,
-            byte[] fileData,
-            out string msg)
-        {
-            msg = "";
-
-            try
-            {
-                using (var ctx = SpContextHelper.GetContext(spConnection))
-                {
-                    using (var ms = new System.IO.MemoryStream(fileData))
-                    {
-                        if (!spConnection.IsSpOnline)
-                        {
-                            File.SaveBinaryDirect(ctx, spFileServerRelUrl, ms, true);
-                        }
-                        else
-                        {
-                            var spFolderUrl = spFileServerRelUrl.Substring(0, spFileServerRelUrl.LastIndexOf('/')).TrimEnd("/".ToCharArray());
-                            var fileName = spFileServerRelUrl.Substring(spFileServerRelUrl.LastIndexOf('/') + 1).TrimStart("/".ToCharArray());
-
-                            var folder = ctx.Web.GetFolderByServerRelativeUrl(spFolderUrl);
-
-                            var fci = new FileCreationInformation();
-                            fci.ContentStream = ms;
-                            fci.Url = fileName;
-                            fci.Overwrite = true;
-
-                            folder.Files.Add(fci);
-                            ctx.ExecuteQuery();
-                        }
-                    }
-
-                }
-
-            }
-            catch (Exception ex)
-            {
-                msg = SHOW_FULL_ERRORS ? ex.ToString() : ex.Message;
-            }
-
-            return msg == "";
-        }
+        
 
         /// <summary>
         /// </summary>
-        public static bool CreateFolderInSharePoint(SpConnectionInfo spConnection,
+        public static bool CreateFolderInSharePoint(SpConnectionManager spConnection,
             string folderName, 
             string parentFolderUrl, 
             out string msg)
@@ -623,7 +500,7 @@ namespace BandR
 
             try
             {
-                using (var ctx = SpContextHelper.GetContext(spConnection))
+                using (var ctx = spConnection.GetContext())
                 {
                     var folder = ctx.Web.GetFolderByServerRelativeUrl(parentFolderUrl);
                     var newFolder = folder.Folders.Add(folderName);
@@ -640,36 +517,8 @@ namespace BandR
             return msg == "";
         }
 
-        /// <summary>
-        /// </summary>
-        public static bool DownloadFileFromSharePoint(SpConnectionInfo spConnection,
-            string fileServerRelUrl, 
-            out byte[] fileData, 
-            out string msg)
-        {
-            msg = "";
-            fileData = null;
 
-            try
-            {
-                using (var ctx = SpContextHelper.GetContext(spConnection))
-                {
-                    var fi = File.OpenBinaryDirect(ctx, fileServerRelUrl);
-                    fileData = GenUtil.ReadFully(fi.Stream);
-                }
-
-            }
-            catch (Exception ex)
-            {
-                msg = SHOW_FULL_ERRORS ? ex.ToString() : ex.Message;
-            }
-
-            return msg == "";
-        }
-
-        /// <summary>
-        /// </summary>
-        public static bool DeleteFileFromSharePoint(SpConnectionInfo spConnection,
+        public static bool DeleteFileFromSharePoint(SpConnectionManager spConnection,
             string fileServerRelUrl, 
             out string msg)
         {
@@ -677,7 +526,7 @@ namespace BandR
 
             try
             {
-                using (var ctx = SpContextHelper.GetContext(spConnection))
+                using (var ctx = spConnection.GetContext())
                 {
                     var file = ctx.Web.GetFileByServerRelativeUrl(fileServerRelUrl);
                     file.DeleteObject();
@@ -696,7 +545,7 @@ namespace BandR
 
         /// <summary>
         /// </summary>
-        public static bool DeleteFolderFromSharePoint(SpConnectionInfo spConnection,
+        public static bool DeleteFolderFromSharePoint(SpConnectionManager spConnection,
             string folderServerRelUrl, 
             out string msg)
         {
@@ -704,7 +553,7 @@ namespace BandR
 
             try
             {
-                using (var ctx = SpContextHelper.GetContext(spConnection))
+                using (var ctx = spConnection.GetContext())
                 {
                     var folder = ctx.Web.GetFolderByServerRelativeUrl(folderServerRelUrl);
                     folder.DeleteObject();
@@ -723,7 +572,7 @@ namespace BandR
 
         /// <summary>
         /// </summary>
-        public static bool RenameSharePointFile(SpConnectionInfo spConnection,
+        public static bool RenameSharePointFile(SpConnectionManager spConnection,
             string fileServerRelUrl, 
             string newFileName, 
             out string msg)
@@ -732,7 +581,7 @@ namespace BandR
 
             try
             {
-                using (var ctx = SpContextHelper.GetContext(spConnection))
+                using (var ctx = spConnection.GetContext())
                 {
                     var file = ctx.Web.GetFileByServerRelativeUrl(fileServerRelUrl);
                     ctx.Load(file,
@@ -755,7 +604,7 @@ namespace BandR
 
         /// <summary>
         /// </summary>
-        public static bool RenameSharePointFolder(SpConnectionInfo spConnection,
+        public static bool RenameSharePointFolder(SpConnectionManager spConnection,
             Guid listId, 
             string folderServerRelUrl, 
             string newFolderName, 
@@ -765,7 +614,7 @@ namespace BandR
 
             try
             {
-                using (var ctx = SpContextHelper.GetContext(spConnection))
+                using (var ctx = spConnection.GetContext())
                 {
 
                     var oldFolderParentUrl = folderServerRelUrl.Substring(0, folderServerRelUrl.LastIndexOf('/'));
@@ -821,7 +670,7 @@ namespace BandR
 
         /// <summary>
         /// </summary>
-        public static bool UpdateSharePointFileFields(SpConnectionInfo spConnection,
+        public static bool UpdateSharePointFileFields(SpConnectionManager spConnection,
             Guid listId,
             string fileServerRelUrl,
             Hashtable ht,
@@ -831,7 +680,7 @@ namespace BandR
 
             try
             {
-                using (var ctx = SpContextHelper.GetContext(spConnection))
+                using (var ctx = spConnection.GetContext())
                 {
                     var file = ctx.Web.GetFileByServerRelativeUrl(fileServerRelUrl);
 
@@ -858,7 +707,7 @@ namespace BandR
 
         /// <summary>
         /// </summary>
-        public static bool GetSharePointFileFields(SpConnectionInfo spConnection,
+        public static bool GetSharePointFileFields(SpConnectionManager spConnection,
             Guid listId,
             string fileServerRelUrl,
             out List<string> lstFieldNames,
@@ -869,7 +718,7 @@ namespace BandR
 
             try
             {
-                using (var ctx = SpContextHelper.GetContext(spConnection))
+                using (var ctx = spConnection.GetContext())
                 {
                     var file = ctx.Web.GetFileByServerRelativeUrl(fileServerRelUrl);
 
@@ -893,7 +742,7 @@ namespace BandR
 
         /// <summary>
         /// </summary>
-        public static bool MoveSPFile(SpConnectionInfo spConnection,
+        public static bool MoveSPFile(SpConnectionManager spConnection,
             string fileServerRelUrl,
             string newFileServerRelUrl,
             bool overwrite,
@@ -903,7 +752,7 @@ namespace BandR
 
             try
             {
-                using (var ctx = SpContextHelper.GetContext(spConnection))
+                using (var ctx = spConnection.GetContext())
                 {
                     File file = null;
 
@@ -942,7 +791,7 @@ namespace BandR
 
         /// <summary>
         /// </summary>
-        public static bool CopySPFile(SpConnectionInfo spConnection,
+        public static bool CopySPFile(SpConnectionManager spConnection,
             string fileServerRelUrl,
             string newFileServerRelUrl,
             bool overwrite,
@@ -952,7 +801,7 @@ namespace BandR
 
             try
             {
-                using (var ctx = SpContextHelper.GetContext(spConnection))
+                using (var ctx = spConnection.GetContext())
                 {
                     File file = null;
 
@@ -990,7 +839,7 @@ namespace BandR
 
         /// <summary>
         /// </summary>
-        public static bool CheckFolderExists(SpConnectionInfo spConnection,
+        public static bool CheckFolderExists(SpConnectionManager spConnection,
             string folderPath,
             out bool exists,
             out string msg)
@@ -999,7 +848,7 @@ namespace BandR
 
             try
             {
-                using (var ctx = SpContextHelper.GetContext(spConnection))
+                using (var ctx = spConnection.GetContext())
                 {
                     Folder folder = ctx.Web.GetFolderByServerRelativeUrl(folderPath);
                     ctx.Load(folder, x => x.Name, x => x.ServerRelativeUrl);
@@ -1026,7 +875,7 @@ namespace BandR
 
         /// <summary>
         /// </summary>
-        public static bool PublishSPFile(SpConnectionInfo spConnection,
+        public static bool PublishSPFile(SpConnectionManager spConnection,
             Guid listId,
             string fileServerRelUrl,
             string comment,
@@ -1036,7 +885,7 @@ namespace BandR
 
             try
             {
-                using (var ctx = SpContextHelper.GetContext(spConnection))
+                using (var ctx = spConnection.GetContext())
                 {
                     var file = ctx.Web.GetFileByServerRelativeUrl(fileServerRelUrl);
 
@@ -1058,7 +907,7 @@ namespace BandR
 
         /// <summary>
         /// </summary>
-        public static bool CheckInSPFile(SpConnectionInfo spConnection,
+        public static bool CheckInSPFile(SpConnectionManager spConnection,
             Guid listId,
             string fileServerRelUrl,
             string comment,
@@ -1069,7 +918,7 @@ namespace BandR
 
             try
             {
-                using (var ctx = SpContextHelper.GetContext(spConnection))
+                using (var ctx = spConnection.GetContext())
                 {
                     var file = ctx.Web.GetFileByServerRelativeUrl(fileServerRelUrl);
 
@@ -1091,7 +940,7 @@ namespace BandR
 
         /// <summary>
         /// </summary>
-        public static bool CheckOutSPFile(SpConnectionInfo spConnection,
+        public static bool CheckOutSPFile(SpConnectionManager spConnection,
             Guid listId,
             string fileServerRelUrl,
             out string msg)
@@ -1100,7 +949,7 @@ namespace BandR
 
             try
             {
-                using (var ctx = SpContextHelper.GetContext(spConnection))
+                using (var ctx = spConnection.GetContext())
                 {
                     var file = ctx.Web.GetFileByServerRelativeUrl(fileServerRelUrl);
 
@@ -1122,7 +971,7 @@ namespace BandR
 
         /// <summary>
         /// </summary>
-        public static bool UndoCheckOutSPFile(SpConnectionInfo spConnection,
+        public static bool UndoCheckOutSPFile(SpConnectionManager spConnection,
             Guid listId,
             string fileServerRelUrl,
             out string msg)
@@ -1131,7 +980,7 @@ namespace BandR
 
             try
             {
-                using (var ctx = SpContextHelper.GetContext(spConnection))
+                using (var ctx = spConnection.GetContext())
                 {
                     var file = ctx.Web.GetFileByServerRelativeUrl(fileServerRelUrl);
 
@@ -1153,7 +1002,7 @@ namespace BandR
 
         /// <summary>
         /// </summary>
-        public static bool GetSitePropBagValues(SpConnectionInfo spConnection,
+        public static bool GetSitePropBagValues(SpConnectionManager spConnection,
             out List<string> keys,
             out string msg)
         {
@@ -1162,7 +1011,7 @@ namespace BandR
 
             try
             {
-                using (var ctx = SpContextHelper.GetContext(spConnection))
+                using (var ctx = spConnection.GetContext())
                 {
                     var web = ctx.Web;
                     var allProps = web.AllProperties;
@@ -1186,7 +1035,7 @@ namespace BandR
 
         /// <summary>
         /// </summary>
-        public static bool GetSitePropBagValue(SpConnectionInfo spConnection,
+        public static bool GetSitePropBagValue(SpConnectionManager spConnection,
             string key,
             out string value,
             out string msg)
@@ -1196,7 +1045,7 @@ namespace BandR
 
             try
             {
-                using (var ctx = SpContextHelper.GetContext(spConnection))
+                using (var ctx = spConnection.GetContext())
                 {
                     var web = ctx.Web;
                     var allProps = web.AllProperties;
@@ -1220,7 +1069,7 @@ namespace BandR
 
         /// <summary>
         /// </summary>
-        public static bool SetSitePropBagValue(SpConnectionInfo spConnection,
+        public static bool SetSitePropBagValue(SpConnectionManager spConnection,
             string key,
             string value,
             out string msg)
@@ -1229,7 +1078,7 @@ namespace BandR
 
             try
             {
-                using (var ctx = SpContextHelper.GetContext(spConnection))
+                using (var ctx = spConnection.GetContext())
                 {
                     var web = ctx.Web;
                     web.AllProperties[key] = value;
