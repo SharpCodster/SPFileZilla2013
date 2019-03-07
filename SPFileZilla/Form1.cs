@@ -17,6 +17,8 @@ using System.Text.RegularExpressions;
 using SpMigrator.Core;
 using SpMigrator.Core.SpFileAndFolders;
 using SpMigrator.Core.Interfaces;
+using SpMigrator.Core.Entities;
+using SpMigrator.Core.Eums;
 
 namespace SPFileZilla2013
 {
@@ -536,11 +538,11 @@ namespace SPFileZilla2013
 
                 foreach (string selItem in selItems)
                 {
-                    if (selItem.Substring(0, 1) == Enums.TreeNodeTypes.FILE.ToString())
+                    if (selItem.Substring(0, 1) == NodeType.FILE.ToString())
                     {
                         lstFilePaths.Add(selItem.Substring(1));
                     }
-                    else if (selItem.Substring(0, 1) == Enums.TreeNodeTypes.FOLDER.ToString())
+                    else if (selItem.Substring(0, 1) == NodeType.FOLDER.ToString())
                     {
                         lstFolderPaths.Add(selItem.Substring(1));
                     }
@@ -594,16 +596,16 @@ namespace SPFileZilla2013
             var msg = "";
             refreshNeeded = false;
 
-            var lstSubObjects = new List<SPTree_FolderFileObj>();
+            var lstSubObjects = new List<SpFileSystemItem>();
 
             // add files to list
             foreach (string filePath in lstFilePaths)
             {
-                lstSubObjects.Add(new SPTree_FolderFileObj()
+                lstSubObjects.Add(new SpFileSystemItem()
                 {
                     dtModified = null,
                     folderLevel = filePath.ToCharArray().Count(x => x == '/'),
-                    treeNodeType = Enums.TreeNodeTypes.FILE,
+                    treeNodeType = NodeType.FILE,
                     name = filePath.Substring(filePath.LastIndexOf('/') + 1),
                     url = filePath,
                     length = 0
@@ -739,16 +741,16 @@ namespace SPFileZilla2013
         {
             var msg = "";
 
-            var lstSubObjects = new List<SPTree_FolderFileObj>();
+            var lstSubObjects = new List<SpFileSystemItem>();
 
             // add files to list
             foreach (string filePath in lstFilePaths)
             {
-                lstSubObjects.Add(new SPTree_FolderFileObj()
+                lstSubObjects.Add(new SpFileSystemItem()
                 {
                     dtModified = null,
                     folderLevel = filePath.ToCharArray().Count(x => x == '/'),
-                    treeNodeType = Enums.TreeNodeTypes.FILE,
+                    treeNodeType = NodeType.FILE,
                     name = filePath.Substring(filePath.LastIndexOf('/') + 1),
                     url = filePath,
                     length = 0
@@ -859,11 +861,11 @@ namespace SPFileZilla2013
 
                 foreach (string selItem in selItems)
                 {
-                    if (selItem.Substring(0, 1) == Enums.TreeNodeTypes.FILE.ToString())
+                    if (selItem.Substring(0, 1) == NodeType.FILE.ToString())
                     {
                         lstFilePaths.Add(selItem.Substring(1));
                     }
-                    else if (selItem.Substring(0, 1) == Enums.TreeNodeTypes.FOLDER.ToString())
+                    else if (selItem.Substring(0, 1) == NodeType.FOLDER.ToString())
                     {
                         lstFolderPaths.Add(selItem.Substring(1));
                     }
@@ -921,11 +923,11 @@ namespace SPFileZilla2013
 
                 foreach (string selItem in selItems)
                 {
-                    if (selItem.Substring(0, 1) == Enums.TreeNodeTypes.FILE.ToString())
+                    if (selItem.Substring(0, 1) == NodeType.FILE.ToString())
                     {
                         lstFilePaths.Add(selItem.Substring(1));
                     }
-                    else if (selItem.Substring(0, 1) == Enums.TreeNodeTypes.FOLDER.ToString())
+                    else if (selItem.Substring(0, 1) == NodeType.FOLDER.ToString())
                     {
                         lstFolderPaths.Add(selItem.Substring(1));
                     }
@@ -988,11 +990,11 @@ namespace SPFileZilla2013
 
                 foreach (string selItem in selItems)
                 {
-                    if (selItem.Substring(0, 1) == Enums.TreeNodeTypes.FILE.ToString())
+                    if (selItem.Substring(0, 1) == NodeType.FILE.ToString())
                     {
                         lstFilePaths.Add(selItem.Substring(1));
                     }
-                    else if (selItem.Substring(0, 1) == Enums.TreeNodeTypes.FOLDER.ToString())
+                    else if (selItem.Substring(0, 1) == NodeType.FOLDER.ToString())
                     {
                         lstFolderPaths.Add(selItem.Substring(1));
                     }
@@ -1055,11 +1057,11 @@ namespace SPFileZilla2013
 
                 foreach (string selItem in selItems)
                 {
-                    if (selItem.Substring(0, 1) == Enums.TreeNodeTypes.FILE.ToString())
+                    if (selItem.Substring(0, 1) == NodeType.FILE.ToString())
                     {
                         lstFilePaths.Add(selItem.Substring(1));
                     }
-                    else if (selItem.Substring(0, 1) == Enums.TreeNodeTypes.FOLDER.ToString())
+                    else if (selItem.Substring(0, 1) == NodeType.FOLDER.ToString())
                     {
                         lstFolderPaths.Add(selItem.Substring(1));
                     }
@@ -1122,11 +1124,11 @@ namespace SPFileZilla2013
 
                 foreach (string selItem in selItems)
                 {
-                    if (selItem.Substring(0, 1) == Enums.TreeNodeTypes.FILE.ToString())
+                    if (selItem.Substring(0, 1) == NodeType.FILE.ToString())
                     {
                         lstFilePaths.Add(selItem.Substring(1));
                     }
-                    else if (selItem.Substring(0, 1) == Enums.TreeNodeTypes.FOLDER.ToString())
+                    else if (selItem.Substring(0, 1) == NodeType.FOLDER.ToString())
                     {
                         lstFolderPaths.Add(selItem.Substring(1));
                     }
@@ -1189,11 +1191,11 @@ namespace SPFileZilla2013
 
                 foreach (string selItem in selItems)
                 {
-                    if (selItem.Substring(0, 1) == Enums.TreeNodeTypes.FILE.ToString())
+                    if (selItem.Substring(0, 1) == NodeType.FILE.ToString())
                     {
                         lstFilePaths.Add(selItem.Substring(1));
                     }
-                    else if (selItem.Substring(0, 1) == Enums.TreeNodeTypes.FOLDER.ToString())
+                    else if (selItem.Substring(0, 1) == NodeType.FOLDER.ToString())
                     {
                         lstFolderPaths.Add(selItem.Substring(1));
                     }
@@ -1251,11 +1253,11 @@ namespace SPFileZilla2013
 
                 foreach (string selItem in selItems)
                 {
-                    if (selItem.Substring(0, 1) == Enums.TreeNodeTypes.FILE.ToString())
+                    if (selItem.Substring(0, 1) == NodeType.FILE.ToString())
                     {
                         lstFilePaths.Add(selItem.Substring(1));
                     }
-                    else if (selItem.Substring(0, 1) == Enums.TreeNodeTypes.FOLDER.ToString())
+                    else if (selItem.Substring(0, 1) == NodeType.FOLDER.ToString())
                     {
                         lstFolderPaths.Add(selItem.Substring(1));
                     }
@@ -1342,11 +1344,11 @@ namespace SPFileZilla2013
 
                 foreach (string selItem in selItems)
                 {
-                    if (selItem.Substring(0, 1) == Enums.TreeNodeTypes.FILE.ToString())
+                    if (selItem.Substring(0, 1) == NodeType.FILE.ToString())
                     {
                         lstFilePaths.Add(selItem.Substring(1));
                     }
-                    else if (selItem.Substring(0, 1) == Enums.TreeNodeTypes.FOLDER.ToString())
+                    else if (selItem.Substring(0, 1) == NodeType.FOLDER.ToString())
                     {
                         lstFolderPaths.Add(selItem.Substring(1));
                     }
@@ -1551,7 +1553,7 @@ namespace SPFileZilla2013
                 lvi.Name = newFolderPath;
                 lvi.SubItems.Add("");
                 lvi.SubItems.Add("");
-                lvi.Tag = Enums.TreeNodeTypes.FOLDER;
+                lvi.Tag = NodeType.FOLDER;
                 lvSP.Items.Add(lvi);
             }
         }
@@ -1621,11 +1623,11 @@ namespace SPFileZilla2013
                 var sNodeType = selItem.Substring(0, 1);
                 var sNodePath = selItem.Substring(1);
 
-                if (sNodeType == Enums.TreeNodeTypes.FOLDER.ToString())
+                if (sNodeType == NodeType.FOLDER.ToString())
                 {
                     AddFolderToSP(sNodePath, curSPLocationObj.curFolderUrl, false, ref refreshNeeded);
                 }
-                else if (sNodeType == Enums.TreeNodeTypes.FILE.ToString())
+                else if (sNodeType == NodeType.FILE.ToString())
                 {
                     AddFileToSP(sNodePath, curSPLocationObj.curFolderUrl, ref refreshNeeded);
                 }
@@ -1666,11 +1668,11 @@ namespace SPFileZilla2013
                 var sNodeType = selItem.Substring(0, 1);
                 var sNodePath = selItem.Substring(1);
 
-                if (sNodeType == Enums.TreeNodeTypes.FOLDER.ToString())
+                if (sNodeType == NodeType.FOLDER.ToString())
                 {
                     AddFolderToFS(sNodePath, tbCurFSUrl.Text.Trim(), false, ref refreshNeeded);
                 }
-                else if (sNodeType == Enums.TreeNodeTypes.FILE.ToString())
+                else if (sNodeType == NodeType.FILE.ToString())
                 {
                     AddFileToFS(sNodePath, tbCurFSUrl.Text.Trim(), ref refreshNeeded);
                 }
@@ -1713,7 +1715,7 @@ namespace SPFileZilla2013
             var sNodeType = selItem.Substring(0, 1);
             var sNodePath = selItem.Substring(1);
 
-            if (sNodeType != Enums.TreeNodeTypes.FILE.ToString())
+            if (sNodeType != NodeType.FILE.ToString())
             {
                 cout("You can only view/edit files.");
                 return;
@@ -1909,7 +1911,7 @@ namespace SPFileZilla2013
                     return;
                 }
 
-                if (sNodeType == Enums.TreeNodeTypes.FOLDER.ToString())
+                if (sNodeType == NodeType.FOLDER.ToString())
                 {
                     // rename folder in filesystem
                     try
@@ -1943,7 +1945,7 @@ namespace SPFileZilla2013
                     }
 
                 }
-                else if (sNodeType == Enums.TreeNodeTypes.FILE.ToString())
+                else if (sNodeType == NodeType.FILE.ToString())
                 {
                     // rename file in filesystem
                     try
@@ -2034,7 +2036,7 @@ namespace SPFileZilla2013
             var msg = "";
             var refreshNeeded = false;
 
-            if (sNodeType == Enums.TreeNodeTypes.FOLDER.ToString())
+            if (sNodeType == NodeType.FOLDER.ToString())
             {
                 // rename folder in sharepoint
                 if (!SpComHelper.RenameSharePointFolder(GetConnection(), curSPLocationObj.listId.Value, sNodePath, newName, out msg))
@@ -2048,7 +2050,7 @@ namespace SPFileZilla2013
                 }
 
             }
-            else if (sNodeType == Enums.TreeNodeTypes.FILE.ToString())
+            else if (sNodeType == NodeType.FILE.ToString())
             {
 
                 var oldFileExt = sNodePath.Substring(sNodePath.LastIndexOf('.'));
@@ -2138,7 +2140,7 @@ namespace SPFileZilla2013
                     var sNodeType = selItem.Substring(0, 1);
                     var sNodePath = selItem.Substring(1);
 
-                    if (sNodeType == Enums.TreeNodeTypes.FOLDER.ToString())
+                    if (sNodeType == NodeType.FOLDER.ToString())
                     {
                         // delete folders in filesystem
                         try
@@ -2153,7 +2155,7 @@ namespace SPFileZilla2013
                         }
 
                     }
-                    else if (sNodeType == Enums.TreeNodeTypes.FILE.ToString())
+                    else if (sNodeType == NodeType.FILE.ToString())
                     {
                         // delete files in filesystem
                         try
@@ -2208,7 +2210,7 @@ namespace SPFileZilla2013
                 var sNodeType = selItem.Substring(0, 1);
                 var sNodePath = selItem.Substring(1);
 
-                if (sNodeType == Enums.TreeNodeTypes.FOLDER.ToString())
+                if (sNodeType == NodeType.FOLDER.ToString())
                 {
                     // delete folders in sharepoint
                     if (!SpComHelper.DeleteFolderFromSharePoint(GetConnection(), sNodePath, out msg))
@@ -2222,7 +2224,7 @@ namespace SPFileZilla2013
                     }
 
                 }
-                else if (sNodeType == Enums.TreeNodeTypes.FILE.ToString())
+                else if (sNodeType == NodeType.FILE.ToString())
                 {
                     // delete files in sharepoint
                     if (!SpComHelper.DeleteFileFromSharePoint(GetConnection(), sNodePath, out msg))
@@ -2318,11 +2320,11 @@ namespace SPFileZilla2013
 
             foreach (string spItem in selSPItems)
             {
-                if (spItem.Substring(0, 1) == Enums.TreeNodeTypes.FOLDER.ToString())
+                if (spItem.Substring(0, 1) == NodeType.FOLDER.ToString())
                 {
                     AddFolderToFS(spItem.Substring(1), tbCurFSUrl.Text.Trim(), false, ref refreshNeeded);
                 }
-                else if (spItem.Substring(0, 1) == Enums.TreeNodeTypes.FILE.ToString())
+                else if (spItem.Substring(0, 1) == NodeType.FILE.ToString())
                 {
                     AddFileToFS(spItem.Substring(1), tbCurFSUrl.Text.Trim(), ref refreshNeeded);
                 }
@@ -2395,11 +2397,11 @@ namespace SPFileZilla2013
             {
                 var folderPath = fsItem.Substring(0, 1);
 
-                if (folderPath == Enums.TreeNodeTypes.FOLDER.ToString())
+                if (folderPath == NodeType.FOLDER.ToString())
                 {
                     AddFolderToSP(fsItem.Substring(1), curSPLocationObj.curFolderUrl, false, ref refreshNeeded);
                 }
-                else if (folderPath == Enums.TreeNodeTypes.FILE.ToString())
+                else if (folderPath == NodeType.FILE.ToString())
                 {
                     AddFileToSP(fsItem.Substring(1), curSPLocationObj.curFolderUrl, ref refreshNeeded);
                 }
@@ -2530,19 +2532,19 @@ namespace SPFileZilla2013
                         }
                         else if (!string.IsNullOrEmpty(item.Name))
                         {
-                            if ((int)item.Tag == Enums.TreeNodeTypes.LIST)
+                            if ((int)item.Tag == (int)NodeType.LIST)
                             {
                                 // list was selected
                                 LoadSPListView_RootObjects(item.Name, 0);
 
                             }
-                            else if ((int)item.Tag == Enums.TreeNodeTypes.FOLDER)
+                            else if ((int)item.Tag == (int)NodeType.FOLDER)
                             {
                                 // folder was selected
                                 LoadSPListView_FolderObjects(item.Name, 0);
 
                             }
-                            else if ((int)item.Tag == Enums.TreeNodeTypes.FILE)
+                            else if ((int)item.Tag == (int)NodeType.FILE)
                             {
                                 // file was selected
                                 cout("Copying file to File System...");
@@ -2637,14 +2639,14 @@ namespace SPFileZilla2013
                         }
                         else if (!string.IsNullOrEmpty(item.Name))
                         {
-                            if ((int)item.Tag == Enums.TreeNodeTypes.FOLDER)
+                            if ((int)item.Tag == (int)NodeType.FOLDER)
                             {
                                 var path = item.Name;
 
                                 tbCurFSUrl.Text = path;
                                 LoadFSListView_GetFoldersFiles(path, 0);
                             }
-                            else if ((int)item.Tag == Enums.TreeNodeTypes.FILE)
+                            else if ((int)item.Tag == (int)NodeType.FILE)
                             {
                                 if (curSPLocationObj.listId != null)
                                 {
@@ -2882,7 +2884,7 @@ namespace SPFileZilla2013
             }
 
             // get files and folders inside this folder
-            var lstObjs = new List<SPTree_FolderFileObj>();
+            var lstObjs = new List<SpFileSystemItem>();
 
             if (!SpComHelper.GetListFoldersFilesFolderLevel(GetConnection(),
                     curSPLocationObj.listId,
@@ -2898,11 +2900,11 @@ namespace SPFileZilla2013
 
             foreach (var obj in lstObjs)
             {
-                if (obj.treeNodeType == Enums.TreeNodeTypes.FOLDER)
+                if (obj.treeNodeType == NodeType.FOLDER)
                 {
                     AddFolderToFS(obj.url, newFolderPath, false, ref refreshNeeded);
                 }
-                else if (obj.treeNodeType == Enums.TreeNodeTypes.FILE)
+                else if (obj.treeNodeType == NodeType.FILE)
                 {
                     AddFileToFS(obj.url, newFolderPath, ref refreshNeeded);
                 }
@@ -3055,9 +3057,9 @@ namespace SPFileZilla2013
 
                 lvFS.Items.Clear();
                 lvFS.Items.Add(Enums.TreeNodeActions.REFRESH, "(refresh)", Enums.IconImages.REFRESH);
-                lvFS.Items[0].Tag = Enums.TreeNodeTypes.OTHER;
+                lvFS.Items[0].Tag = NodeType.OTHER;
                 lvFS.Items.Add(Enums.TreeNodeActions.UP, "..", Enums.IconImages.FOLDER);
-                lvFS.Items[1].Tag = Enums.TreeNodeTypes.OTHER;
+                lvFS.Items[1].Tag = NodeType.OTHER;
 
                 var lstFolders = new List<SortingFSObject>();
                 foreach (string dir in dirs)
@@ -3112,7 +3114,7 @@ namespace SPFileZilla2013
                     lvi.Name = folder.path;
                     lvi.SubItems.Add("");
                     lvi.SubItems.Add(folder.dtmodified.HasValue ? folder.dtmodified.Value.ToString() : "");
-                    lvi.Tag = Enums.TreeNodeTypes.FOLDER;
+                    lvi.Tag = NodeType.FOLDER;
 
                     lvFS.Items.Add(lvi);
                 }
@@ -3123,7 +3125,7 @@ namespace SPFileZilla2013
                     lvi.Name = file.path;
                     lvi.SubItems.Add(file.size.HasValue ? file.size.Value.ToString("###,###,###,###") : "");
                     lvi.SubItems.Add(file.dtmodified.HasValue ? file.dtmodified.Value.ToString() : "");
-                    lvi.Tag = Enums.TreeNodeTypes.FILE;
+                    lvi.Tag = NodeType.FILE;
 
                     lvFS.Items.Add(lvi);
                 }
@@ -3159,9 +3161,9 @@ namespace SPFileZilla2013
             var msg = "";
             var refreshNeeded = false;
 
-            List<SPTree_ListObj> lstObjs;
+            List<SpLibrary> lstObjs;
 
-            if (!SpComHelper.GetSiteLists(GetConnection(), out lstObjs, out msg))
+            if (!SpListsInspector.GetSiteLists(GetConnection(), out lstObjs, out msg))
             {
                 bgWorker.ReportProgress(0, msg);
             }
@@ -3185,7 +3187,7 @@ namespace SPFileZilla2013
             EnableFormFields();
 
             var lstResults = e.Result as List<object>;
-            var lstObjs = lstResults[0] as List<SPTree_ListObj>;
+            var lstObjs = lstResults[0] as List<SpLibrary>;
             var refreshNeeded = GenUtil.SafeToBool(lstResults[1]);
 
             if (!refreshNeeded)
@@ -3202,7 +3204,7 @@ namespace SPFileZilla2013
 
             lvSP.Items.Clear();
             lvSP.Items.Add(Enums.TreeNodeActions.REFRESH, "(refresh)", Enums.IconImages.REFRESH);
-            lvSP.Items[0].Tag = Enums.TreeNodeTypes.OTHER;
+            lvSP.Items[0].Tag = NodeType.OTHER;
 
             // fill tree with sharepoint lists in site
             foreach (var obj in lstObjs)
@@ -3211,7 +3213,7 @@ namespace SPFileZilla2013
                 lvi.Name = obj.Id.ToString();
                 lvi.SubItems.Add("");
                 lvi.SubItems.Add("");
-                lvi.Tag = Enums.TreeNodeTypes.LIST;
+                lvi.Tag = NodeType.LIST;
 
                 lvSP.Items.Add(lvi);
             }
@@ -3248,7 +3250,7 @@ namespace SPFileZilla2013
             var refreshNeeded = false;
 
             var rootFolderPath = "";
-            var lstObjs = new List<SPTree_FolderFileObj>();
+            var lstObjs = new List<SpFileSystemItem>();
 
             // get files and folders from root folder of list
             if (!SpComHelper.GetListFoldersFilesRootLevel(GetConnection(),
@@ -3284,7 +3286,7 @@ namespace SPFileZilla2013
 
             var lstResults = e.Result as List<object>;
             var listId = GenUtil.SafeToGuid(lstResults[0]);
-            var lstObjs = lstResults[1] as List<SPTree_FolderFileObj>;
+            var lstObjs = lstResults[1] as List<SpFileSystemItem>;
             var rootFolderPath = (string)lstResults[2];
             var refreshNeeded = GenUtil.SafeToBool(lstResults[3]);
 
@@ -3302,30 +3304,30 @@ namespace SPFileZilla2013
 
             lvSP.Items.Clear();
             lvSP.Items.Add(Enums.TreeNodeActions.REFRESH, "(refresh)", Enums.IconImages.REFRESH);
-            lvSP.Items[0].Tag = Enums.TreeNodeTypes.OTHER;
+            lvSP.Items[0].Tag = NodeType.OTHER;
             lvSP.Items.Add(Enums.TreeNodeActions.UP, "..", Enums.IconImages.FOLDER);
-            lvSP.Items[1].Tag = Enums.TreeNodeTypes.OTHER;
+            lvSP.Items[1].Tag = NodeType.OTHER;
 
             foreach (var obj in lstObjs)
             {
-                if (obj.treeNodeType == Enums.TreeNodeTypes.FOLDER)
+                if (obj.treeNodeType == NodeType.FOLDER)
                 {
                     var lvi = new ListViewItem(obj.name, Enums.IconImages.FOLDER);
                     lvi.Name = obj.url;
                     lvi.SubItems.Add("");
                     lvi.SubItems.Add("");
-                    lvi.Tag = Enums.TreeNodeTypes.FOLDER;
+                    lvi.Tag = NodeType.FOLDER;
 
                     lvSP.Items.Add(lvi);
 
                 }
-                else if (obj.treeNodeType == Enums.TreeNodeTypes.FILE)
+                else if (obj.treeNodeType == NodeType.FILE)
                 {
                     var lvi = new ListViewItem(obj.name, Enums.IconImages.FILE);
                     lvi.Name = obj.url;
                     lvi.SubItems.Add(obj.length.HasValue ? obj.length.Value.ToString("###,###,###,###") : "");
                     lvi.SubItems.Add(obj.dtModified.HasValue ? obj.dtModified.Value.ToString() : "");
-                    lvi.Tag = Enums.TreeNodeTypes.FILE;
+                    lvi.Tag = NodeType.FILE;
 
                     lvSP.Items.Add(lvi);
                 }
@@ -3362,7 +3364,7 @@ namespace SPFileZilla2013
             var msg = "";
             var refreshNeeded = false;
 
-            var lstObjs = new List<SPTree_FolderFileObj>();
+            var lstObjs = new List<SpFileSystemItem>();
 
             // get files and folders from list folder (using folder url)
             if (!SpComHelper.GetListFoldersFilesFolderLevel(GetConnection(),
@@ -3396,7 +3398,7 @@ namespace SPFileZilla2013
             EnableFormFields();
 
             var lstResults = e.Result as List<object>;
-            var lstObjs = lstResults[0] as List<SPTree_FolderFileObj>;
+            var lstObjs = lstResults[0] as List<SpFileSystemItem>;
             var folderUrl = (string)lstResults[1];
             var refreshNeeded = GenUtil.SafeToBool(lstResults[2]);
 
@@ -3412,30 +3414,30 @@ namespace SPFileZilla2013
 
             lvSP.Items.Clear();
             lvSP.Items.Add(Enums.TreeNodeActions.REFRESH, "(refresh)", Enums.IconImages.REFRESH);
-            lvSP.Items[0].Tag = Enums.TreeNodeTypes.OTHER;
+            lvSP.Items[0].Tag = NodeType.OTHER;
             lvSP.Items.Add(Enums.TreeNodeActions.UP, "..", Enums.IconImages.FOLDER);
-            lvSP.Items[1].Tag = Enums.TreeNodeTypes.OTHER;
+            lvSP.Items[1].Tag = NodeType.OTHER;
 
             foreach (var obj in lstObjs)
             {
-                if (obj.treeNodeType == Enums.TreeNodeTypes.FOLDER)
+                if (obj.treeNodeType == NodeType.FOLDER)
                 {
                     var lvi = new ListViewItem(obj.name, Enums.IconImages.FOLDER);
                     lvi.Name = obj.url;
                     lvi.SubItems.Add("");
                     lvi.SubItems.Add("");
-                    lvi.Tag = Enums.TreeNodeTypes.FOLDER;
+                    lvi.Tag = NodeType.FOLDER;
 
                     lvSP.Items.Add(lvi);
 
                 }
-                else if (obj.treeNodeType == Enums.TreeNodeTypes.FILE)
+                else if (obj.treeNodeType == NodeType.FILE)
                 {
                     var lvi = new ListViewItem(obj.name, Enums.IconImages.FILE);
                     lvi.Name = obj.url;
                     lvi.SubItems.Add(obj.length.HasValue ? obj.length.Value.ToString("###,###,###,###") : "");
                     lvi.SubItems.Add(obj.dtModified.HasValue ? obj.dtModified.Value.ToString() : "");
-                    lvi.Tag = Enums.TreeNodeTypes.FILE;
+                    lvi.Tag = NodeType.FILE;
 
                     lvSP.Items.Add(lvi);
                 }
@@ -3479,7 +3481,7 @@ namespace SPFileZilla2013
             {
                 foreach (ListViewItem item in items)
                 {
-                    if ((int)item.Tag != Enums.TreeNodeTypes.OTHER)
+                    if ((int)item.Tag != (int)NodeType.OTHER)
                     {
                         lstSelItems.Add(((int)item.Tag).ToString() + item.Name);
                     }

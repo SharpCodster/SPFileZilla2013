@@ -21,14 +21,6 @@ namespace BandR
             public const string REFRESH = "0";
             public const string UP = "1";
         }
-
-        public class TreeNodeTypes
-        {
-            public const int OTHER = -1;
-            public const int FOLDER = 0;
-            public const int FILE = 1;
-            public const int LIST = 2;
-        }
-
+        
     }
 }

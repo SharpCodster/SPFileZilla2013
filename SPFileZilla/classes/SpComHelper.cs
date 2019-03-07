@@ -7,6 +7,8 @@ using System.Net;
 using System.Collections;
 using System.Globalization;
 using SpMigrator.Core;
+using SpMigrator.Core.Entities;
+using SpMigrator.Core.Eums;
 
 namespace BandR
 {
@@ -43,63 +45,20 @@ namespace BandR
 
         /// <summary>
         /// </summary>
-        public static bool GetSiteLists(SpConnectionManager spConnection, out List<CustObjs.SPTree_ListObj> lstObjs, out string msg)
-        {
-            msg = "";
-            lstObjs = new List<CustObjs.SPTree_ListObj>();
 
-            try
-            {
-                using (var ctx = spConnection.GetContext())
-                {
-                   var lists = ctx.Web.Lists;
-                    ctx.Load(lists, l => l.Include(x => x.Title, x => x.Id, x => x.ContentTypes.Include(y => y.Name, y => y.Id)));
-
-                    ctx.ExecuteQuery();
-
-                    foreach (List list in lists)
-                    {
-                        bool match = false;
-                        foreach (ContentType ct in list.ContentTypes)
-                        {
-                            if (ct.Id.ToString().StartsWith(SPFileZilla2013.Form1.GetContentTypeIdPrefix()))
-                            {
-                                match = true;
-                                break;
-                            }
-                        }
-
-                        if (match)
-                        {
-                            lstObjs.Add(new CustObjs.SPTree_ListObj() { Id = list.Id, Title = list.Title });
-                        }
-                    }
-
-                    lstObjs = lstObjs.OrderBy(x => x.Title).ToList();
-
-                }
-
-            }
-            catch (Exception ex)
-            {
-                msg = SHOW_FULL_ERRORS ? ex.ToString() : ex.Message;
-            }
-
-            return msg == "";
-        }
 
         /// <summary>
         /// </summary>
         public static bool GetListFoldersFilesRootLevel(SpConnectionManager spConnection,
-            Guid? listId, 
+            Guid? listId,
             int sortCol,
             int rowLimit,
             out string rootFolderPath,
-            out List<CustObjs.SPTree_FolderFileObj> lstObjs, 
+            out List<SpFileSystemItem> lstObjs,
             out string msg)
         {
             msg = "";
-            lstObjs = new List<CustObjs.SPTree_FolderFileObj>();
+            lstObjs = new List<SpFileSystemItem>();
             rootFolderPath = "";
 
             // make sure caml row limit is never more than 5000
@@ -165,9 +124,9 @@ namespace BandR
                                 var filesize = (int?)GenUtil.SafeToNum(SafeGetFileSize(item));
                                 if (filesize == -1) filesize = null;
 
-                                lstObjs.Add(new CustObjs.SPTree_FolderFileObj()
+                                lstObjs.Add(new SpFileSystemItem()
                                 {
-                                    treeNodeType = Enums.TreeNodeTypes.FILE,
+                                    treeNodeType = NodeType.FILE,
                                     name = item["FileLeafRef"].SafeTrim(),
                                     url = item["FileRef"].SafeTrim(),
                                     dtModified = modified,
@@ -176,9 +135,9 @@ namespace BandR
                             }
                             else
                             {
-                                lstObjs.Add(new CustObjs.SPTree_FolderFileObj()
+                                lstObjs.Add(new SpFileSystemItem()
                                 {
-                                    treeNodeType = Enums.TreeNodeTypes.FOLDER,
+                                    treeNodeType = NodeType.FOLDER,
                                     name = item["FileLeafRef"].SafeTrim(),
                                     url = item["FileRef"].SafeTrim()
                                 });
@@ -218,11 +177,11 @@ namespace BandR
             string folderServerRelPath,
             int sortCol,
             int rowLimit,
-            out List<CustObjs.SPTree_FolderFileObj> lstObjs,
+            out List<SpFileSystemItem> lstObjs,
             out string msg)
         {
             msg = "";
-            lstObjs = new List<CustObjs.SPTree_FolderFileObj>();
+            lstObjs = new List<SpFileSystemItem>();
 
             // make sure caml row limit is never more than 5000
             var camlRowLimit = rowLimit > Consts.MAX_ROW_LIMIT ? Consts.MAX_ROW_LIMIT : rowLimit;
@@ -283,9 +242,9 @@ namespace BandR
                                 var filesize = (int?)GenUtil.SafeToNum(SafeGetFileSize(item));
                                 if (filesize == -1) filesize = null;
 
-                                lstObjs.Add(new CustObjs.SPTree_FolderFileObj()
+                                lstObjs.Add(new SpFileSystemItem()
                                 {
-                                    treeNodeType = Enums.TreeNodeTypes.FILE,
+                                    treeNodeType = NodeType.FILE,
                                     name = item["FileLeafRef"].SafeTrim(),
                                     url = item["FileRef"].SafeTrim(),
                                     dtModified = modified,
@@ -294,9 +253,9 @@ namespace BandR
                             }
                             else
                             {
-                                lstObjs.Add(new CustObjs.SPTree_FolderFileObj()
+                                lstObjs.Add(new SpFileSystemItem()
                                 {
-                                    treeNodeType = Enums.TreeNodeTypes.FOLDER,
+                                    treeNodeType = NodeType.FOLDER,
                                     name = item["FileLeafRef"].SafeTrim(),
                                     url = item["FileRef"].SafeTrim()
                                 });
@@ -334,7 +293,7 @@ namespace BandR
         public static bool GetListAllFilesFolderLevel(SpConnectionManager spConnection,
             Guid? listId,
             string folderServerRelPath,
-            ref List<CustObjs.SPTree_FolderFileObj> lstObjs,
+            ref List<SpFileSystemItem> lstObjs,
             out string msg)
         {
             // get all files (recursiveall) from a sub folder in a list
@@ -342,7 +301,7 @@ namespace BandR
             msg = "";
 
             if (lstObjs == null)
-                lstObjs = new List<CustObjs.SPTree_FolderFileObj>();
+                lstObjs = new List<SpFileSystemItem>();
 
             try
             {
@@ -361,10 +320,7 @@ namespace BandR
                         var strViewFields = "<FieldRef Name='ID' /><FieldRef Name='FileLeafRef' /><FieldRef Name='FileDirRef' /><FieldRef Name='FileRef' /><FieldRef Name='FSObjType' />";
                         var strQuery = "<Query></Query>";
 
-                        var strViewXml = "<View Scope='RecursiveAll'>#QUERY#<ViewFields>#VIEWFIELDS#</ViewFields><RowLimit>#MAXROWLIMIT#</RowLimit></View>"
-                            .Replace("#QUERY#", strQuery)
-                            .Replace("#VIEWFIELDS#", strViewFields)
-                            .Replace("#MAXROWLIMIT#", Consts.MAX_ROW_LIMIT.ToString());
+                        var strViewXml = $"<View Scope='RecursiveAll'>{strQuery}<ViewFields>#{strViewFields}</ViewFields><RowLimit>{Consts.MAX_ROW_LIMIT}</RowLimit></View>";
 
                         cq.ListItemCollectionPosition = pos;
                         cq.ViewXml = strViewXml;
@@ -383,9 +339,9 @@ namespace BandR
                             {
                                 var folderLevel = item["FileRef"].SafeTrim().ToCharArray().Count(x => x == '/');
 
-                                lstObjs.Add(new CustObjs.SPTree_FolderFileObj()
+                                lstObjs.Add(new SpFileSystemItem()
                                 {
-                                    treeNodeType = Enums.TreeNodeTypes.FILE,
+                                    treeNodeType = NodeType.FILE,
                                     name = item["FileLeafRef"].SafeTrim(),
                                     url = item["FileRef"].SafeTrim(),
                                     dtModified = null,
@@ -408,92 +364,9 @@ namespace BandR
             return msg == "";
         }
 
-        /// <summary>
-        /// NOT USED, old way of getting folder files/folders
-        /// </summary>
-        public static bool GetListFoldersFilesFolderLevel_OLD(SpConnectionManager spConnection,
-            string folderUrl, 
-            int sortCol,
-            int rowLimit,
-            out List<CustObjs.SPTree_FolderFileObj> lstObjs, 
-            out string msg)
-        {
-            msg = "";
-            lstObjs = new List<CustObjs.SPTree_FolderFileObj>();
-
-            try
-            {
-                using (var ctx = spConnection.GetContext())
-                {
-                    var folder = ctx.Web.GetFolderByServerRelativeUrl(folderUrl);
-
-                    var folders = folder.Folders;
-                    ctx.Load(folders, x => x.Include(y => y.Name, y => y.ServerRelativeUrl));
-
-                    var files = folder.Files;
-                    ctx.Load(files, x => x.Include(y => y.Name, y => y.ServerRelativeUrl, y => y.ListItemAllFields));
-
-                    ctx.ExecuteQuery();
-
-                    foreach (Folder curFolder in folders)
-                    {
-                        lstObjs.Add(new CustObjs.SPTree_FolderFileObj()
-                        {
-                            treeNodeType = Enums.TreeNodeTypes.FOLDER,
-                            name = curFolder.Name,
-                            url = curFolder.ServerRelativeUrl
-                        });
-                    }
-
-                    foreach (File curFile in files)
-                    {
-                        lstObjs.Add(new CustObjs.SPTree_FolderFileObj()
-                        {
-                            treeNodeType = Enums.TreeNodeTypes.FILE,
-                            name = curFile.Name,
-                            url = curFile.ServerRelativeUrl,
-                            dtModified = curFile.ListItemAllFields.FieldValues.ContainsKey("Modified") ? (DateTime?)GenUtil.SafeToDateTime(curFile.ListItemAllFields.FieldValues["Modified"]) : null,
-                            length = curFile.ListItemAllFields.FieldValues.ContainsKey("File_x0020_Size") ? (int?)GenUtil.SafeToNum(curFile.ListItemAllFields.FieldValues["File_x0020_Size"]) : null
-                        });
-                    }
-
-                    if (sortCol == 0)
-                    {
-                        lstObjs = lstObjs.OrderBy(x => x.treeNodeType).ThenBy(x => x.name).ToList();
-                    }
-                    else if (sortCol == 1)
-                    {
-                        lstObjs = lstObjs.OrderBy(x => x.treeNodeType).ThenBy(x => x.length).ThenBy(x => x.name).ToList();
-                    }
-                    else if (sortCol == 2)
-                    {
-                        lstObjs = lstObjs.OrderBy(x => x.treeNodeType).ThenBy(x => x.dtModified).ThenBy(x => x.name).ToList();
-                    }
-
-                }
-
-            }
-            catch (Exception ex)
-            {
-                msg = SHOW_FULL_ERRORS ? ex.ToString() : ex.Message;
-            }
-
-            return msg == "";
-        }
-
-        /// <summary>
-        /// </summary>
-        
-
-        /// <summary>
-        /// </summary>
-        
-
-        /// <summary>
-        /// </summary>
         public static bool CreateFolderInSharePoint(SpConnectionManager spConnection,
-            string folderName, 
-            string parentFolderUrl, 
+            string folderName,
+            string parentFolderUrl,
             out string msg)
         {
             msg = "";
@@ -519,7 +392,7 @@ namespace BandR
 
 
         public static bool DeleteFileFromSharePoint(SpConnectionManager spConnection,
-            string fileServerRelUrl, 
+            string fileServerRelUrl,
             out string msg)
         {
             msg = "";
@@ -543,10 +416,8 @@ namespace BandR
             return msg == "";
         }
 
-        /// <summary>
-        /// </summary>
         public static bool DeleteFolderFromSharePoint(SpConnectionManager spConnection,
-            string folderServerRelUrl, 
+            string folderServerRelUrl,
             out string msg)
         {
             msg = "";
@@ -570,11 +441,9 @@ namespace BandR
             return msg == "";
         }
 
-        /// <summary>
-        /// </summary>
         public static bool RenameSharePointFile(SpConnectionManager spConnection,
-            string fileServerRelUrl, 
-            string newFileName, 
+            string fileServerRelUrl,
+            string newFileName,
             out string msg)
         {
             msg = "";
@@ -602,12 +471,10 @@ namespace BandR
             return msg == "";
         }
 
-        /// <summary>
-        /// </summary>
         public static bool RenameSharePointFolder(SpConnectionManager spConnection,
-            Guid listId, 
-            string folderServerRelUrl, 
-            string newFolderName, 
+            Guid listId,
+            string folderServerRelUrl,
+            string newFolderName,
             out string msg)
         {
             msg = "";

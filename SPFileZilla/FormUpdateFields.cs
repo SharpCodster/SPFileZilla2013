@@ -10,6 +10,8 @@ using System.Collections;
 using BandR;
 using BandR.CustObjs;
 using SpMigrator.Core;
+using SpMigrator.Core.Eums;
+using SpMigrator.Core.Entities;
 
 namespace SPFileZilla2013
 {
@@ -137,16 +139,16 @@ namespace SPFileZilla2013
             var errors_found = false;
             var msg = "";
 
-            var lstSubObjects = new List<SPTree_FolderFileObj>();
+            var lstSubObjects = new List<SpFileSystemItem>();
 
             // add files to list
             foreach (string filePath in _lstFilePaths)
             {
-                lstSubObjects.Add(new SPTree_FolderFileObj()
+                lstSubObjects.Add(new SpFileSystemItem()
                 {
                     dtModified = null,
                     folderLevel = filePath.ToCharArray().Count(x => x == '/'),
-                    treeNodeType = Enums.TreeNodeTypes.FILE,
+                    treeNodeType = NodeType.FILE,
                     name = filePath.Substring(filePath.LastIndexOf('/') + 1),
                     url = filePath,
                     length = 0

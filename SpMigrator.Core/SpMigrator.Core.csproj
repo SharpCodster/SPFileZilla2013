@@ -43,15 +43,22 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Entities\SpFileSystemItem.cs" />
+    <Compile Include="Enums\NodeType.cs" />
+    <Compile Include="Entities\SpLibrary.cs" />
+    <Compile Include="Enums\WfsType.cs" />
     <Compile Include="Interfaces\ISpDownloadResult.cs" />
     <Compile Include="Interfaces\ISpUploadResult.cs" />
     <Compile Include="SpConnectionManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SpFileAndFolders\DownloadReult.cs" />
     <Compile Include="SpFileAndFolders\SpDownloader.cs" />
+    <Compile Include="SpFileAndFolders\SpListsInspector.cs" />
     <Compile Include="SpFileAndFolders\SpUploader.cs" />
     <Compile Include="SpFileAndFolders\UploadResult.cs" />
     <Compile Include="Utilities\PathHelper.cs" />
+    <Compile Include="WindowsFileSystem\WfsInspector.cs" />
+    <Compile Include="WindowsFileSystem\WfsObject.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

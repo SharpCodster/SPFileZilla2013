@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SPFileZilla2013", "SPFileZi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpMigrator.Core", "SpMigrator.Core\SpMigrator.Core.csproj", "{C8F711EC-5E32-4566-957C-D98CBB2915D1}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpToolBox", "SpToolBox\SpToolBox.csproj", "{8229ABD2-B554-4CC6-8409-25142ECD96F9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,18 @@ Global
 		{C8F711EC-5E32-4566-957C-D98CBB2915D1}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{C8F711EC-5E32-4566-957C-D98CBB2915D1}.Release|x86.ActiveCfg = Release|Any CPU
 		{C8F711EC-5E32-4566-957C-D98CBB2915D1}.Release|x86.Build.0 = Release|Any CPU
+		{8229ABD2-B554-4CC6-8409-25142ECD96F9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8229ABD2-B554-4CC6-8409-25142ECD96F9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8229ABD2-B554-4CC6-8409-25142ECD96F9}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{8229ABD2-B554-4CC6-8409-25142ECD96F9}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{8229ABD2-B554-4CC6-8409-25142ECD96F9}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{8229ABD2-B554-4CC6-8409-25142ECD96F9}.Debug|x86.Build.0 = Debug|Any CPU
+		{8229ABD2-B554-4CC6-8409-25142ECD96F9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8229ABD2-B554-4CC6-8409-25142ECD96F9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8229ABD2-B554-4CC6-8409-25142ECD96F9}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{8229ABD2-B554-4CC6-8409-25142ECD96F9}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{8229ABD2-B554-4CC6-8409-25142ECD96F9}.Release|x86.ActiveCfg = Release|Any CPU
+		{8229ABD2-B554-4CC6-8409-25142ECD96F9}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

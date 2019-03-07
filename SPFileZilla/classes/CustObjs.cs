@@ -1,32 +1,11 @@
-﻿using System;
+﻿using SpMigrator.Core.Eums;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
 namespace BandR.CustObjs
 {
-
-    public class SPTree_ListObj
-    {
-        public Guid Id { get; set; }
-        public string Title { get; set; }
-    }
-
-    public class SPTree_FolderFileObj
-    {
-        public int treeNodeType { get; set; }
-
-        public string url { get; set; }
-        public string name { get; set; }
-
-        public int? length { get; set; }
-        public DateTime? dtModified { get; set; }
-
-        // special
-        public int folderLevel { get; set; }
-
-    }
-
     public class ProfileDetail
     {
         public string profileName { get; set; }
